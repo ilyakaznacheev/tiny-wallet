@@ -5,9 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 
+	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 )
@@ -24,14 +24,14 @@ func MakeHTTPHandler(s Service, logger log.Logger) http.Handler {
 
 	r.Methods("GET").Path("/payments").Handler(httptransport.NewServer(
 		e.GetAllPaymentsEndpoint,
-		nil,
+		decodeDummy,
 		encodeResponse,
 		options...,
 	))
 
 	r.Methods("GET").Path("/accounts").Handler(httptransport.NewServer(
 		e.GetAllAccountsEndpoint,
-		nil,
+		decodeDummy,
 		encodeResponse,
 		options...,
 	))
@@ -44,6 +44,10 @@ func MakeHTTPHandler(s Service, logger log.Logger) http.Handler {
 	))
 
 	return r
+}
+
+func decodeDummy(_ context.Context, r *http.Request) (request interface{}, err error) {
+	return nil, nil
 }
 
 func decodePostPaymentRequest(_ context.Context, r *http.Request) (request interface{}, err error) {

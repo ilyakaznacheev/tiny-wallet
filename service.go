@@ -44,12 +44,42 @@ func NewWalletService() Service {
 
 // GetAllPayments returns a list of all payments in the system
 func (s *walletService) GetAllPayments(ctx context.Context) ([]Payment, error) {
-	return nil, nil
+	return []Payment{
+		Payment{
+			ID:        1,
+			AccFromID: 1,
+			AccToID:   2,
+			DateTime:  time.Now(),
+			Amount:    5,
+			Currency:  currency.USD,
+		},
+		Payment{
+			ID:        2,
+			AccFromID: 2,
+			AccToID:   1,
+			DateTime:  time.Now(),
+			Amount:    10,
+			Currency:  currency.USD,
+		},
+	}, nil
 }
 
 // GetAllAccounts returns a list of all accounts in the system
 func (s *walletService) GetAllAccounts(ctx context.Context) ([]Account, error) {
-	return nil, nil
+	return []Account{
+		Account{
+			ID:       1,
+			Name:     "Masha",
+			Balance:  20,
+			Currency: currency.USD,
+		},
+		Account{
+			ID:       1,
+			Name:     "Sasha",
+			Balance:  10,
+			Currency: currency.USD,
+		},
+	}, nil
 }
 
 // PostPayment processes a financial transaction between two accounts
