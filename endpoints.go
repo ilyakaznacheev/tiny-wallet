@@ -48,7 +48,7 @@ func MakeGetAllAccountsEndpoint(s Service) endpoint.Endpoint {
 func MakePostPaymentEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(PostPaymentRequest)
-		err = s.PostPayment(ctx, req.Payment)
+		err = s.PostPayment(ctx, req.AccountFromID, req.AccountToID, req.Amount)
 		return nil, err
 	}
 }
@@ -57,7 +57,9 @@ func MakePostPaymentEndpoint(s Service) endpoint.Endpoint {
 type (
 	// PostPaymentRequest is a request structure for the PostPayment endpoint
 	PostPaymentRequest struct {
-		Payment Payment `json:"payment"`
+		AccountFromID string `json:"from-account"`
+		AccountToID   string `json:"to-account"`
+		Amount        int    `json:"amount"`
 	}
 
 	// GetAllPaymentsResponse  is a request structure for the GetAllPayments endpoint

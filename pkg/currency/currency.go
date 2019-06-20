@@ -215,12 +215,14 @@ const (
 	USN Currency = 997
 )
 
+// property of ISO currency
 type property struct {
 	Code     string
 	Name     string
 	Decimals uint
 }
 
+// currencyProperties ISO currency property
 var currencyProperties = map[Currency]property{
 	AFN: {"AFN", "Afghani", 2},
 	AED: {"AED", "UAE Dirham", 2},
