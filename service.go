@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/ilyakaznacheev/tiny-wallet/pkg/currency"
+	"github.com/ilyakaznacheev/tiny-wallet/internal/model"
 )
 
 // HTTPError is an error with HTTP status and error description
@@ -38,34 +37,17 @@ func (e HTTPError) Code() int {
 
 // Service is a set of CRUD operations that the backend can process
 type Service interface {
-	GetAllPayments(ctx context.Context) ([]Payment, error)
-	GetAllAccounts(ctx context.Context) ([]Account, error)
+	GetAllPayments(ctx context.Context) ([]model.Payment, error)
+	GetAllAccounts(ctx context.Context) ([]model.Account, error)
 	PostPayment(ctx context.Context, from, to string, amount int) error
 }
 
 // Database is a common interface for a database layer
 type Database interface {
-	GetAllAccounts() ([]Account, error)
-	GetAllPayments() ([]Payment, error)
-	GetAccount(accountID string) (*Account, error)
-	CreatePayment(p Payment) error
-}
-
-// Account is a financial account
-type Account struct {
-	ID         string `json:"id"`
-	LastUpdate time.Time
-	Balance    int               `json:"balance"`
-	Currency   currency.Currency `json:"currency"`
-}
-
-// Payment is a financial transaction between accounts
-type Payment struct {
-	ID        int
-	AccFromID string    `json:"account-from"`
-	AccToID   string    `json:"account-to"`
-	DateTime  time.Time `json:"time,omitempty"`
-	Amount    int       `json:"amount"`
+	GetAllAccounts() ([]model.Account, error)
+	GetAllPayments() ([]model.Payment, error)
+	GetAccount(accountID string) (*model.Account, error)
+	CreatePayment(p model.Payment) error
 }
 
 type walletService struct {
@@ -78,12 +60,12 @@ func NewWalletService() Service {
 }
 
 // GetAllPayments returns a list of all payments in the system
-func (s *walletService) GetAllPayments(ctx context.Context) ([]Payment, error) {
+func (s *walletService) GetAllPayments(ctx context.Context) ([]model.Payment, error) {
 	return s.db.GetAllPayments()
 }
 
 // GetAllAccounts returns a list of all accounts in the system
-func (s *walletService) GetAllAccounts(ctx context.Context) ([]Account, error) {
+func (s *walletService) GetAllAccounts(ctx context.Context) ([]model.Account, error) {
 	return s.db.GetAllAccounts()
 }
 
@@ -109,7 +91,7 @@ func (s *walletService) PostPayment(ctx context.Context, fromID, toID string, am
 		return NewHTTPErrorf(http.StatusBadRequest, "account %d has not enough money", accFrom.ID)
 	}
 
-	payment := Payment{
+	payment := model.Payment{
 		AccFromID: fromID,
 		AccToID:   toID,
 		Amount:    amount,

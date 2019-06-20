@@ -5,4 +5,5 @@ require (
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gorilla/mux v1.7.2
+	github.com/lib/pq v1.1.1
 )

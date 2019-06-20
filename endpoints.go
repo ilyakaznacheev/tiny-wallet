@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/ilyakaznacheev/tiny-wallet/internal/model"
 )
 
 // Endpoints is a set of service API endpoints
@@ -64,11 +65,11 @@ type (
 
 	// GetAllPaymentsResponse  is a request structure for the GetAllPayments endpoint
 	GetAllPaymentsResponse struct {
-		Payments []Payment `json:"payments"`
+		Payments []model.Payment `json:"payments"`
 	}
 
 	// GetAllAccountsResponse is a request structure for the GetAllAccounts endpoint
 	GetAllAccountsResponse struct {
-		Accounts []Account `json:"accounts"`
+		Accounts []model.Account `json:"accounts"`
 	}
 )
