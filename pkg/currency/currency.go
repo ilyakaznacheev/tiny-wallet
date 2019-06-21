@@ -8,14 +8,14 @@ import (
 )
 
 // Currency type for a currency ISO 4217 code
-type Currency int
+type Currency string
 
 // String returns a name of currency
 func (c Currency) String() string {
 	if p, ok := currencyProperties[c]; ok {
 		return p.Name
 	}
-	return "non-ISO 4216 currency"
+	return fmt.Sprintf("non-ISO 4216 currency (%s)", string(c))
 }
 
 // FormatAmount returns an integer amount formatted depending on the number of decimal places of the currency
@@ -25,194 +25,176 @@ func (c Currency) FormatAmount(raw int) string {
 	return strconv.FormatFloat(b, 'f', -1, 64)
 }
 
-// Atoc converts string ISO 4217 code to numerical code
-func Atoc(code string) (*Currency, error) {
-	for c, p := range currencyProperties {
-		if p.Code == code {
-			return &c, nil
-		}
-	}
-	return nil, fmt.Errorf("not a valid ISO 4217 code")
-}
-
-// Ctoa converts ISO 4217 numerical code to string code
-func Ctoa(c Currency) (string, error) {
-	if p, ok := currencyProperties[c]; ok {
-		return p.Code, nil
-	}
-	return "", fmt.Errorf("not a valid ISO 4217 code")
-}
-
 const (
-	AFN Currency = 971
-	ALL Currency = 8
-	DZD Currency = 12
-	ARS Currency = 32
-	AUD Currency = 36
-	BSD Currency = 44
-	BHD Currency = 48
-	BDT Currency = 50
-	AMD Currency = 51
-	BBD Currency = 52
-	BMD Currency = 60
-	BTN Currency = 64
-	BOB Currency = 68
-	BWP Currency = 72
-	BZD Currency = 84
-	SBD Currency = 90
-	BND Currency = 96
-	MMK Currency = 104
-	BIF Currency = 108
-	KHR Currency = 116
-	CAD Currency = 124
-	CVE Currency = 132
-	KYD Currency = 136
-	LKR Currency = 144
-	CLP Currency = 152
-	CNY Currency = 156
-	COP Currency = 170
-	KMF Currency = 174
-	CRC Currency = 188
-	HRK Currency = 191
-	CUP Currency = 192
-	CZK Currency = 203
-	DKK Currency = 208
-	DOP Currency = 214
-	SVC Currency = 222
-	ETB Currency = 230
-	ERN Currency = 232
-	FKP Currency = 238
-	FJD Currency = 242
-	DJF Currency = 262
-	GMD Currency = 270
-	GIP Currency = 292
-	GTQ Currency = 320
-	GNF Currency = 324
-	GYD Currency = 328
-	HTG Currency = 332
-	HNL Currency = 340
-	HKD Currency = 344
-	HUF Currency = 348
-	ISK Currency = 352
-	INR Currency = 356
-	IDR Currency = 360
-	IRR Currency = 364
-	IQD Currency = 368
-	ILS Currency = 376
-	JMD Currency = 388
-	JPY Currency = 392
-	KZT Currency = 398
-	JOD Currency = 400
-	KES Currency = 404
-	KPW Currency = 408
-	KRW Currency = 410
-	KWD Currency = 414
-	KGS Currency = 417
-	LAK Currency = 418
-	LBP Currency = 422
-	LSL Currency = 426
-	LRD Currency = 430
-	LYD Currency = 434
-	MOP Currency = 446
-	MWK Currency = 454
-	MYR Currency = 458
-	MVR Currency = 462
-	MUR Currency = 480
-	MXN Currency = 484
-	MNT Currency = 496
-	MDL Currency = 498
-	MAD Currency = 504
-	OMR Currency = 512
-	NAD Currency = 516
-	NPR Currency = 524
-	ANG Currency = 532
-	AWG Currency = 533
-	VUV Currency = 548
-	NZD Currency = 554
-	NIO Currency = 558
-	NGN Currency = 566
-	NOK Currency = 578
-	PKR Currency = 586
-	PAB Currency = 590
-	PGK Currency = 598
-	PYG Currency = 600
-	PEN Currency = 604
-	PHP Currency = 608
-	QAR Currency = 634
-	RUB Currency = 643
-	RWF Currency = 646
-	SHP Currency = 654
-	SAR Currency = 682
-	SCR Currency = 690
-	SLL Currency = 694
-	SGD Currency = 702
-	VND Currency = 704
-	SOS Currency = 706
-	ZAR Currency = 710
-	SSP Currency = 728
-	SZL Currency = 748
-	SEK Currency = 752
-	CHF Currency = 756
-	SYP Currency = 760
-	THB Currency = 764
-	TOP Currency = 776
-	TTD Currency = 780
-	AED Currency = 784
-	TND Currency = 788
-	UGX Currency = 800
-	MKD Currency = 807
-	EGP Currency = 818
-	GBP Currency = 826
-	TZS Currency = 834
-	USD Currency = 840
-	UYU Currency = 858
-	UZS Currency = 860
-	WST Currency = 882
-	YER Currency = 886
-	TWD Currency = 901
-	UYW Currency = 927
-	VES Currency = 928
-	MRU Currency = 929
-	STN Currency = 930
-	CUC Currency = 931
-	ZWL Currency = 932
-	BYN Currency = 933
-	TMT Currency = 934
-	GHS Currency = 936
-	SDG Currency = 938
-	UYI Currency = 940
-	RSD Currency = 941
-	MZN Currency = 943
-	AZN Currency = 944
-	RON Currency = 946
-	CHE Currency = 947
-	CHW Currency = 948
-	TRY Currency = 949
-	XAF Currency = 950
-	XCD Currency = 951
-	XOF Currency = 952
-	XPF Currency = 953
-	XDR Currency = 960
-	XUA Currency = 965
-	ZMW Currency = 967
-	SRD Currency = 968
-	MGA Currency = 969
-	COU Currency = 970
-	TJS Currency = 972
-	AOA Currency = 973
-	BGN Currency = 975
-	CDF Currency = 976
-	BAM Currency = 977
-	EUR Currency = 978
-	MXV Currency = 979
-	UAH Currency = 980
-	GEL Currency = 981
-	BOV Currency = 984
-	PLN Currency = 985
-	BRL Currency = 986
-	CLF Currency = 990
-	XSU Currency = 994
-	USN Currency = 997
+	AFN Currency = "AFN"
+	AED Currency = "AED"
+	ALL Currency = "ALL"
+	AMD Currency = "AMD"
+	ANG Currency = "ANG"
+	AOA Currency = "AOA"
+	ARS Currency = "ARS"
+	AUD Currency = "AUD"
+	AWG Currency = "AWG"
+	AZN Currency = "AZN"
+	BAM Currency = "BAM"
+	BBD Currency = "BBD"
+	BDT Currency = "BDT"
+	BGN Currency = "BGN"
+	BHD Currency = "BHD"
+	BIF Currency = "BIF"
+	BMD Currency = "BMD"
+	BND Currency = "BND"
+	BOB Currency = "BOB"
+	BOV Currency = "BOV"
+	BRL Currency = "BRL"
+	BSD Currency = "BSD"
+	BTN Currency = "BTN"
+	BWP Currency = "BWP"
+	BYN Currency = "BYN"
+	BZD Currency = "BZD"
+	CAD Currency = "CAD"
+	CDF Currency = "CDF"
+	CHE Currency = "CHE"
+	CHF Currency = "CHF"
+	CHW Currency = "CHW"
+	CLF Currency = "CLF"
+	CLP Currency = "CLP"
+	CNY Currency = "CNY"
+	COP Currency = "COP"
+	COU Currency = "COU"
+	CRC Currency = "CRC"
+	CUC Currency = "CUC"
+	CUP Currency = "CUP"
+	CVE Currency = "CVE"
+	CZK Currency = "CZK"
+	DJF Currency = "DJF"
+	DKK Currency = "DKK"
+	DOP Currency = "DOP"
+	DZD Currency = "DZD"
+	EGP Currency = "EGP"
+	ERN Currency = "ERN"
+	ETB Currency = "ETB"
+	EUR Currency = "EUR"
+	FJD Currency = "FJD"
+	FKP Currency = "FKP"
+	GBP Currency = "GBP"
+	GEL Currency = "GEL"
+	GHS Currency = "GHS"
+	GIP Currency = "GIP"
+	GMD Currency = "GMD"
+	GNF Currency = "GNF"
+	GTQ Currency = "GTQ"
+	GYD Currency = "GYD"
+	HKD Currency = "HKD"
+	HNL Currency = "HNL"
+	HRK Currency = "HRK"
+	HTG Currency = "HTG"
+	HUF Currency = "HUF"
+	IDR Currency = "IDR"
+	ILS Currency = "ILS"
+	INR Currency = "INR"
+	IQD Currency = "IQD"
+	IRR Currency = "IRR"
+	ISK Currency = "ISK"
+	JMD Currency = "JMD"
+	JOD Currency = "JOD"
+	JPY Currency = "JPY"
+	KES Currency = "KES"
+	KGS Currency = "KGS"
+	KHR Currency = "KHR"
+	KMF Currency = "KMF"
+	KPW Currency = "KPW"
+	KRW Currency = "KRW"
+	KWD Currency = "KWD"
+	KYD Currency = "KYD"
+	KZT Currency = "KZT"
+	LAK Currency = "LAK"
+	LBP Currency = "LBP"
+	LKR Currency = "LKR"
+	LRD Currency = "LRD"
+	LSL Currency = "LSL"
+	LYD Currency = "LYD"
+	MAD Currency = "MAD"
+	MDL Currency = "MDL"
+	MGA Currency = "MGA"
+	MKD Currency = "MKD"
+	MMK Currency = "MMK"
+	MNT Currency = "MNT"
+	MOP Currency = "MOP"
+	MRU Currency = "MRU"
+	MUR Currency = "MUR"
+	MVR Currency = "MVR"
+	MWK Currency = "MWK"
+	MXN Currency = "MXN"
+	MXV Currency = "MXV"
+	MYR Currency = "MYR"
+	MZN Currency = "MZN"
+	NAD Currency = "NAD"
+	NGN Currency = "NGN"
+	NIO Currency = "NIO"
+	NOK Currency = "NOK"
+	NPR Currency = "NPR"
+	NZD Currency = "NZD"
+	OMR Currency = "OMR"
+	PAB Currency = "PAB"
+	PEN Currency = "PEN"
+	PGK Currency = "PGK"
+	PHP Currency = "PHP"
+	PKR Currency = "PKR"
+	PLN Currency = "PLN"
+	PYG Currency = "PYG"
+	QAR Currency = "QAR"
+	RON Currency = "RON"
+	RSD Currency = "RSD"
+	RUB Currency = "RUB"
+	RWF Currency = "RWF"
+	SAR Currency = "SAR"
+	SBD Currency = "SBD"
+	SCR Currency = "SCR"
+	SDG Currency = "SDG"
+	SEK Currency = "SEK"
+	SGD Currency = "SGD"
+	SHP Currency = "SHP"
+	SLL Currency = "SLL"
+	SOS Currency = "SOS"
+	SRD Currency = "SRD"
+	SSP Currency = "SSP"
+	STN Currency = "STN"
+	SVC Currency = "SVC"
+	SYP Currency = "SYP"
+	SZL Currency = "SZL"
+	THB Currency = "THB"
+	TJS Currency = "TJS"
+	TMT Currency = "TMT"
+	TND Currency = "TND"
+	TOP Currency = "TOP"
+	TRY Currency = "TRY"
+	TTD Currency = "TTD"
+	TWD Currency = "TWD"
+	TZS Currency = "TZS"
+	UAH Currency = "UAH"
+	UGX Currency = "UGX"
+	USD Currency = "USD"
+	USN Currency = "USN"
+	UYI Currency = "UYI"
+	UYU Currency = "UYU"
+	UYW Currency = "UYW"
+	UZS Currency = "UZS"
+	VES Currency = "VES"
+	VND Currency = "VND"
+	VUV Currency = "VUV"
+	WST Currency = "WST"
+	XAF Currency = "XAF"
+	XCD Currency = "XCD"
+	XDR Currency = "XDR"
+	XOF Currency = "XOF"
+	XPF Currency = "XPF"
+	XSU Currency = "XSU"
+	XUA Currency = "XUA"
+	YER Currency = "YER"
+	ZAR Currency = "ZAR"
+	ZMW Currency = "ZMW"
+	ZWL Currency = "ZWL"
 )
 
 // property of ISO currency

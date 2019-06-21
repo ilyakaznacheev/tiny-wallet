@@ -55,8 +55,8 @@ type walletService struct {
 }
 
 // NewWalletService creates a new wallet service
-func NewWalletService() Service {
-	return &walletService{}
+func NewWalletService(db Database) Service {
+	return &walletService{db}
 }
 
 // GetAllPayments returns a list of all payments in the system

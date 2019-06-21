@@ -49,16 +49,8 @@ func NewPostgresClient(ctx context.Context, options string, wait bool) (*Postgre
 func (pg *PostgresClient) GetAllAccounts() ([]model.Account, error) {
 	// fetch the data
 	rows, err := pg.db.Query(
-		`SELECT 
-				a.id, 
-				last_update, 
-				sum(inPayment.amount) - sum(outPayment.amount) AS balance, 
-				a.currency
-			FROM accounts AS a
-				LEFT OUTER JOIN payments AS inPayment ON
-					a.id = inPayment.account_to_id
-				LEFT OUTER JOIN payments AS outPayment ON
-					a.id = outPayment.account_from_id`)
+		`SELECT *
+			FROM v_accounts`)
 	if err != nil {
 		return nil, err
 	}
@@ -110,16 +102,8 @@ func (pg *PostgresClient) GetAllPayments() ([]model.Payment, error) {
 func (pg *PostgresClient) GetAccount(accountID string) (*model.Account, error) {
 	// fetch the data
 	row := pg.db.QueryRow(`
-		SELECT 
-				a.id, 
-				last_update, 
-				sum(inPayment.amount) - sum(outPayment.amount) AS balance, 
-				a.currency
-			FROM accounts AS a
-				LEFT OUTER JOIN payments AS inPayment ON
-					a.id = inPayment.account_to_id
-				LEFT OUTER JOIN payments AS outPayment ON
-					a.id = outPayment.account_from_id
+		SELECT *
+			FROM v_accounts
 			WHERE
 				a.id = ?`, accountID)
 
@@ -137,7 +121,10 @@ func (pg *PostgresClient) GetAccount(accountID string) (*model.Account, error) {
 // In case of any inconsistency, race condition or any other concurrency problem it raises an error
 func (pg *PostgresClient) CreatePayment(p model.Payment) error {
 	// get pg transaction
-	tx, err := pg.db.Begin()
+	tx, err := pg.db.BeginTx(context.Background(), &sql.TxOptions{
+		Isolation: sql.LevelSerializable,
+		ReadOnly:  false,
+	})
 	if err != nil {
 		return err
 	}
