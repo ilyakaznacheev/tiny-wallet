@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/ilyakaznacheev/tiny-wallet/internal/model"
 	"github.com/ilyakaznacheev/tiny-wallet/pkg/currency"
@@ -49,7 +50,7 @@ type Database interface {
 	GetAllAccounts() ([]model.Account, error)
 	GetAllPayments() ([]model.Payment, error)
 	GetAccount(accountID string) (*model.Account, error)
-	CreatePayment(p model.Payment) error
+	CreatePayment(p model.Payment, lastChangedFrom, lastChangedTo *time.Time) error
 }
 
 type walletService struct {
@@ -105,5 +106,5 @@ func (s *walletService) PostPayment(ctx context.Context, fromID, toID string, am
 		Amount:    intAmount,
 	}
 
-	return s.db.CreatePayment(payment)
+	return s.db.CreatePayment(payment, accFrom.LastUpdate, accTo.LastUpdate)
 }

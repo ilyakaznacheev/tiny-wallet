@@ -125,7 +125,7 @@ func (pg *PostgresClient) GetAccount(accountID string) (*model.Account, error) {
 // CreatePayment tries to create a financial transaction
 // Concurrent data access is managed by means of MVCC (Multiversion Concurrency Control)
 // In case of any inconsistency, race condition or any other concurrency problem it raises an error
-func (pg *PostgresClient) CreatePayment(p model.Payment) error {
+func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastChangedTo *time.Time) error {
 	// get pg transaction
 	tx, err := pg.db.BeginTx(context.Background(), &sql.TxOptions{
 		Isolation: sql.LevelSerializable,
@@ -141,7 +141,8 @@ func (pg *PostgresClient) CreatePayment(p model.Payment) error {
 		UPDATE accounts SET
 			last_update = $1
 		WHERE
-			id = $2`, time.Now(), p.AccFromID)
+			id = $2 AND
+			last_update = $3`, time.Now(), p.AccFromID, lastChangedFrom)
 	if err != nil {
 		return err
 	}
@@ -151,7 +152,8 @@ func (pg *PostgresClient) CreatePayment(p model.Payment) error {
 		UPDATE accounts SET
 			last_update = $1
 		WHERE
-			id = $2`, time.Now(), p.AccToID)
+			id = $2 AND
+			last_update = $3`, time.Now(), p.AccToID, lastChangedTo)
 	if err != nil {
 		return err
 	}
