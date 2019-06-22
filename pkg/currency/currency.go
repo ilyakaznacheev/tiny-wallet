@@ -25,6 +25,11 @@ func (c Currency) FormatAmount(raw int) string {
 	return strconv.FormatFloat(b, 'f', -1, 64)
 }
 
+// Decimals returns a number of decimal places of a currency
+func (c Currency) Decimals() int {
+	return int(currencyProperties[c].Decimals)
+}
+
 const (
 	AFN Currency = "AFN"
 	AED Currency = "AED"
