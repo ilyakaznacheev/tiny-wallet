@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/ilyakaznacheev/tiny-wallet/internal/model"
+	"github.com/ilyakaznacheev/tiny-wallet/pkg/currency"
 )
 
 // HTTPError is an error with HTTP status and error description
@@ -39,7 +40,7 @@ func (e HTTPError) Code() int {
 type Service interface {
 	GetAllPayments(ctx context.Context) ([]model.Payment, error)
 	GetAllAccounts(ctx context.Context) ([]model.Account, error)
-	PostPayment(ctx context.Context, from, to string, amount int) error
+	PostPayment(ctx context.Context, from, to string, amount float64) error
 }
 
 // Database is a common interface for a database layer
@@ -70,7 +71,7 @@ func (s *walletService) GetAllAccounts(ctx context.Context) ([]model.Account, er
 }
 
 // PostPayment processes a financial transaction between two accounts
-func (s *walletService) PostPayment(ctx context.Context, fromID, toID string, amount int) error {
+func (s *walletService) PostPayment(ctx context.Context, fromID, toID string, amount float64) error {
 	accFrom, err := s.db.GetAccount(fromID)
 	if err != nil {
 		return NewHTTPErrorf(http.StatusBadRequest, "account %s not found", fromID)
@@ -86,15 +87,17 @@ func (s *walletService) PostPayment(ctx context.Context, fromID, toID string, am
 		return NewHTTPErrorf(http.StatusBadRequest, "account %s and %s have different balance currencies, payment can't be processed", accFrom.ID, accTo.ID)
 	}
 
+	intAmount := currency.ConvertToInternal(amount, accFrom.Currency)
+
 	// check if the payer has enough money on the balance
-	if accFrom.Balance < amount {
+	if accFrom.Balance < intAmount {
 		return NewHTTPErrorf(http.StatusBadRequest, "account %d has not enough money", accFrom.ID)
 	}
 
 	payment := model.Payment{
 		AccFromID: fromID,
 		AccToID:   toID,
-		Amount:    amount,
+		Amount:    intAmount,
 	}
 
 	return s.db.CreatePayment(payment)

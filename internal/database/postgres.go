@@ -79,8 +79,10 @@ func (pg *PostgresClient) GetAllAccounts() ([]model.Account, error) {
 func (pg *PostgresClient) GetAllPayments() ([]model.Payment, error) {
 	// fetch the data
 	rows, err := pg.db.Query(
-		`SELECT * 
-			FROM payments
+		`SELECT p.*, a.currency
+			FROM payments AS p
+				INNER JOIN accounts AS a ON
+					a.id = p.account_from_id
 			ORDER BY account_from_id, trx_time`)
 	if err != nil {
 		return nil, err
@@ -93,7 +95,7 @@ func (pg *PostgresClient) GetAllPayments() ([]model.Payment, error) {
 
 	for rows.Next() {
 		rec := model.Payment{}
-		if err := rows.Scan(&rec.ID, &rec.AccFromID, &rec.AccToID, &rec.DateTime, &rec.Amount); err != nil {
+		if err := rows.Scan(&rec.ID, &rec.AccFromID, &rec.AccToID, &rec.DateTime, &rec.Amount, &res.Currency); err != nil {
 			return nil, err
 		}
 		res = append(res, rec)

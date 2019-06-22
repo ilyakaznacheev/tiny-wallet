@@ -15,6 +15,7 @@ func TestConvertToInternal(t *testing.T) {
 		{"IQD", IQD, 12.345, 12345},
 		{"UYW", UYW, 1.2345, 12345},
 		{"CLP", CLP, 12345.0, 12345},
+		{"AAA", "AAA", 12345.0, 12345},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -36,6 +37,7 @@ func TestConvertToExternal(t *testing.T) {
 		{"IQD", IQD, 12345, 12.345},
 		{"UYW", UYW, 12345, 1.2345},
 		{"CLP", CLP, 12345, 12345.0},
+		{"AAA", "AAA", 12345, 12345.0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

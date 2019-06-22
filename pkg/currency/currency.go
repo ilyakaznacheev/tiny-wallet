@@ -27,7 +27,10 @@ func (c Currency) FormatAmount(raw int) string {
 
 // Decimals returns a number of decimal places of a currency
 func (c Currency) Decimals() int {
-	return int(currencyProperties[c].Decimals)
+	if p, ok := currencyProperties[c]; ok {
+		return int(p.Decimals)
+	}
+	return 0
 }
 
 const (
