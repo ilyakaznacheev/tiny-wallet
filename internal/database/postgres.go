@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"log"
 	"time"
 
 	"github.com/ilyakaznacheev/tiny-wallet/internal/model"
@@ -27,9 +28,12 @@ func NewPostgresClient(ctx context.Context, options string, wait bool) (*Postgre
 		if !wait {
 			return nil, err
 		}
-	db_wait:
 		// wait until the database will up
+		itr := 0
+	db_wait:
 		for {
+			itr++
+			log.Printf("waiting for a database connection... [%d]\n", itr)
 			select {
 			case <-ctx.Done():
 				return nil, ctx.Err()

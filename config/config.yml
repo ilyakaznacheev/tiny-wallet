@@ -1,0 +1,15 @@
+# Application server settings
+server:
+  host: "localhost"
+  port: "8080"
+  wait: yes
+
+# Database (Postgres) settings
+database:
+  host: "localhost"
+  port: "5433"
+  database: "wallet"
+  username: "postgres"
+  password: "postgres"
+  conn-wait: true
+  conn-pool: 5

@@ -8,16 +8,17 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"text/tabwriter"
 
 	"github.com/go-kit/kit/log"
 	wallet "github.com/ilyakaznacheev/tiny-wallet"
+	"github.com/ilyakaznacheev/tiny-wallet/internal/config"
 	"github.com/ilyakaznacheev/tiny-wallet/internal/database"
+	"github.com/kelseyhightower/envconfig"
 )
 
 type args struct {
-	Host   string
-	Port   string
-	WaitDB bool
+	Config string
 }
 
 // run application
@@ -27,14 +28,29 @@ func main() {
 	go func() {
 		c := make(chan os.Signal)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
-		errs <- fmt.Errorf("%s", <-c)
+		exit := <-c
 		cancel()
+		errs <- fmt.Errorf("%s", exit)
 	}()
 
-	a := parseArgs()
-
 	logger := log.NewLogfmtLogger(os.Stderr)
-	db, err := database.NewPostgresClient(ctx, "", a.WaitDB)
+
+	a := parseArgs()
+	conf, err := config.ReadConfig(a.Config)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(2)
+	}
+
+	var dbConfigURL string
+	if conf.Database.DatabaseURL != nil {
+		dbConfigURL = *conf.Database.DatabaseURL
+	} else {
+		dbConfigURL = fmt.Sprintf("host=%s port=%s user=%s "+
+			"password=%s dbname=%s",
+			conf.Database.Host, conf.Database.Port, conf.Database.Username, conf.Database.Password, conf.Database.Database)
+	}
+	db, err := database.NewPostgresClient(ctx, dbConfigURL, conf.Database.ConnectionWait)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
@@ -44,7 +60,7 @@ func main() {
 
 	h := wallet.MakeHTTPHandler(s, log.With(logger, "component", "HTTP"))
 
-	address := fmt.Sprintf("%s:%s", a.Host, a.Port)
+	address := fmt.Sprintf("%s:%s", conf.Server.Host, conf.Server.Port)
 
 	go func() {
 		logger.Log("transport", "HTTP", "addr", address)
@@ -57,11 +73,24 @@ func main() {
 func parseArgs() args {
 	var a args
 
-	flag.StringVar(&a.Host, "h", "localhost", "server host")
-	flag.StringVar(&a.Port, "p", "8080", "server port")
-	flag.BoolVar(&a.WaitDB, "db-wait", true, "wait until database up")
+	f := flag.NewFlagSet("Tiny Wallet", 1)
+	f.StringVar(&a.Config, "c", "config/config.yml", "path to configuration file")
+	fu := f.Usage
+	f.Usage = func() {
+		fu()
 
-	flag.Parse()
+		tabs := tabwriter.NewWriter(os.Stdout, 1, 0, 4, ' ', 0)
+		envconfig.Usagef("", &config.MainConfig{}, tabs, `
+This application is configured via the environment. 
+The following environment variables can be used:
+{{range .}}
+  {{usage_key .}} [{{usage_type .}}]
+	{{usage_description .}}
+{{end}}`)
+		tabs.Flush()
+	}
+
+	f.Parse(os.Args[1:])
 
 	return a
 }
