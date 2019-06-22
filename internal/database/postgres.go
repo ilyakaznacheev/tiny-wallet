@@ -95,7 +95,7 @@ func (pg *PostgresClient) GetAllPayments() ([]model.Payment, error) {
 
 	for rows.Next() {
 		rec := model.Payment{}
-		if err := rows.Scan(&rec.ID, &rec.AccFromID, &rec.AccToID, &rec.DateTime, &rec.Amount, &res.Currency); err != nil {
+		if err := rows.Scan(&rec.ID, &rec.AccFromID, &rec.AccToID, &rec.DateTime, &rec.Amount, &rec.Currency); err != nil {
 			return nil, err
 		}
 		res = append(res, rec)
@@ -111,7 +111,7 @@ func (pg *PostgresClient) GetAccount(accountID string) (*model.Account, error) {
 		SELECT *
 			FROM v_accounts
 			WHERE
-				a.id = ?`, accountID)
+				id = $1`, accountID)
 
 	// process the result
 	rec := model.Account{}
@@ -139,9 +139,9 @@ func (pg *PostgresClient) CreatePayment(p model.Payment) error {
 	// try to update the payer account if it wasn't updated from any concurrent process
 	_, err = tx.Exec(`
 		UPDATE accounts SET
-			last_update = ?
+			last_update = $1
 		WHERE
-			id = ?`, time.Now(), p.AccFromID)
+			id = $2`, time.Now(), p.AccFromID)
 	if err != nil {
 		return err
 	}
@@ -149,17 +149,17 @@ func (pg *PostgresClient) CreatePayment(p model.Payment) error {
 	// try to update the receiver account if it wasn't updated from any concurrent process
 	_, err = tx.Exec(`
 		UPDATE accounts SET
-			last_update = ?
+			last_update = $1
 		WHERE
-			id = ?`, time.Now(), p.AccToID)
+			id = $2`, time.Now(), p.AccToID)
 	if err != nil {
 		return err
 	}
 
 	// create a new payment
 	_, err = tx.Exec(`
-		INSERT accounts(id, account_from_id, account_to_id, trx_time)
-			VALUES(?, ?, ?, ?)`,
+		INSERT INTO payments(account_from_id, account_to_id, amount, trx_time)
+			VALUES($1, $2, $3, $4)`,
 		p.AccFromID, p.AccToID, p.Amount, time.Now())
 	if err != nil {
 		return err

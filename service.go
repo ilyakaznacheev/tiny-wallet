@@ -2,6 +2,7 @@ package wallet
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -73,13 +74,17 @@ func (s *walletService) GetAllAccounts(ctx context.Context) ([]model.Account, er
 // PostPayment processes a financial transaction between two accounts
 func (s *walletService) PostPayment(ctx context.Context, fromID, toID string, amount float64) error {
 	accFrom, err := s.db.GetAccount(fromID)
-	if err != nil {
-		return NewHTTPErrorf(http.StatusBadRequest, "account %s not found", fromID)
+	if err == sql.ErrNoRows {
+		return NewHTTPErrorf(http.StatusNotFound, "account %s not found: %v", fromID, err)
+	} else if err != nil {
+		return NewHTTPErrorf(http.StatusInternalServerError, "%v", err)
 	}
 
 	accTo, err := s.db.GetAccount(toID)
-	if err != nil {
-		return NewHTTPErrorf(http.StatusBadRequest, "account %s not found", toID)
+	if err == sql.ErrNoRows {
+		return NewHTTPErrorf(http.StatusNotFound, "account %s not found: %v", toID, err)
+	} else if err != nil {
+		return NewHTTPErrorf(http.StatusInternalServerError, "%v", err)
 	}
 
 	// check if the payer and the receiver have the same balance currency
