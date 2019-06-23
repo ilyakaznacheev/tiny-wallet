@@ -80,8 +80,18 @@ func MakeGetAllAccountsEndpoint(s Service) endpoint.Endpoint {
 func MakePostPaymentEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(PostPaymentRequest)
-		err = s.PostPayment(ctx, req.AccountFromID, req.AccountToID, req.Amount)
-		return nil, err
+		res, err := s.PostPayment(ctx, req.AccountFromID, req.AccountToID, req.Amount)
+		if err != nil {
+			return nil, err
+		}
+		payment := Payment{
+			AccFromID: res.AccFromID,
+			AccToID:   res.AccToID,
+			DateTime:  res.DateTime,
+			Amount:    currency.ConvertToExternal(res.Amount, res.Currency),
+			Currency:  res.Currency,
+		}
+		return &payment, nil
 	}
 }
 
@@ -89,8 +99,16 @@ func MakePostPaymentEndpoint(s Service) endpoint.Endpoint {
 func MakePostAccountEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(PostAccountRequest)
-		err = s.PostAccount(ctx, req.ID, req.Balance, req.Currency)
-		return nil, err
+		res, err := s.PostAccount(ctx, req.ID, req.Balance, req.Currency)
+		if err != nil {
+			return nil, err
+		}
+		account := Account{
+			ID:       res.ID,
+			Balance:  currency.ConvertToExternal(res.Balance, res.Currency),
+			Currency: res.Currency,
+		}
+		return &account, nil
 	}
 }
 

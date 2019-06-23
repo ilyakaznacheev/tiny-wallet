@@ -125,7 +125,7 @@ func (pg *PostgresClient) GetAccount(accountID string) (*model.Account, error) {
 // CreatePayment tries to create a financial transaction
 // Concurrent data access is managed by means of MVCC (Multiversion Concurrency Control)
 // In case of any inconsistency, race condition or any other concurrency problem it raises an error
-func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastChangedTo *time.Time) error {
+func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastChangedTo *time.Time) (*model.Payment, error) {
 	now := time.Now()
 	// get pg transaction
 	tx, err := pg.db.BeginTx(context.Background(), &sql.TxOptions{
@@ -133,7 +133,7 @@ func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastCh
 		ReadOnly:  false,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer tx.Rollback()
 
@@ -145,7 +145,7 @@ func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastCh
 			id = $2 AND
 			last_update = $3`, now, p.AccFromID, lastChangedFrom)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// try to update the receiver account if it wasn't updated from any concurrent process
@@ -156,28 +156,43 @@ func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastCh
 			id = $2 AND
 			last_update = $3`, now, p.AccToID, lastChangedTo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// create a new payment
-	_, err = tx.Exec(`
+	row := tx.QueryRow(`
 		INSERT INTO payments (account_from_id, account_to_id, amount, trx_time)
-			VALUES($1, $2, $3, $4)`,
+			VALUES($1, $2, $3, $4)
+			RETURNING *`,
 		p.AccFromID, p.AccToID, p.Amount, now)
-	if err != nil {
-		return err
+
+	rec := model.Payment{}
+
+	if err := row.Scan(&rec.ID, &rec.AccFromID, &rec.AccToID, &rec.DateTime, &rec.Amount); err != nil {
+		return nil, err
 	}
 
 	// commit changes
-	return tx.Commit()
+	return &rec, tx.Commit()
 }
 
 // CreateAccount creates a new account
-func (pg *PostgresClient) CreateAccount(a model.Account) error {
+func (pg *PostgresClient) CreateAccount(a model.Account) (*model.Account, error) {
 	now := time.Now()
-	_, err := pg.db.Exec(`
-		INSERT INTO accounts (id, last_update, balance, currency, balance_date)
-			VALUES($1, $2, $3, $4, $5)`,
-		a.ID, now, a.Balance, a.Currency, now)
-	return err
+	row := pg.db.QueryRow(`
+		INSERT INTO accounts (id, last_update, currency, balance, balance_date)
+			VALUES($1, $2, $3, $4, $5)
+			RETURNING *`,
+		a.ID, now, a.Currency, a.Balance, now)
+
+	var (
+		rec       model.Account
+		dateDummy time.Time
+	)
+
+	if err := row.Scan(&rec.ID, &rec.LastUpdate, &rec.Currency, &rec.Balance, &dateDummy); err != nil {
+		return nil, err
+	}
+
+	return &rec, nil
 }
