@@ -126,6 +126,7 @@ func (pg *PostgresClient) GetAccount(accountID string) (*model.Account, error) {
 // Concurrent data access is managed by means of MVCC (Multiversion Concurrency Control)
 // In case of any inconsistency, race condition or any other concurrency problem it raises an error
 func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastChangedTo *time.Time) error {
+	now := time.Now()
 	// get pg transaction
 	tx, err := pg.db.BeginTx(context.Background(), &sql.TxOptions{
 		Isolation: sql.LevelSerializable,
@@ -142,7 +143,7 @@ func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastCh
 			last_update = $1
 		WHERE
 			id = $2 AND
-			last_update = $3`, time.Now(), p.AccFromID, lastChangedFrom)
+			last_update = $3`, now, p.AccFromID, lastChangedFrom)
 	if err != nil {
 		return err
 	}
@@ -153,7 +154,7 @@ func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastCh
 			last_update = $1
 		WHERE
 			id = $2 AND
-			last_update = $3`, time.Now(), p.AccToID, lastChangedTo)
+			last_update = $3`, now, p.AccToID, lastChangedTo)
 	if err != nil {
 		return err
 	}
@@ -162,7 +163,7 @@ func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastCh
 	_, err = tx.Exec(`
 		INSERT INTO payments(account_from_id, account_to_id, amount, trx_time)
 			VALUES($1, $2, $3, $4)`,
-		p.AccFromID, p.AccToID, p.Amount, time.Now())
+		p.AccFromID, p.AccToID, p.Amount, now)
 	if err != nil {
 		return err
 	}

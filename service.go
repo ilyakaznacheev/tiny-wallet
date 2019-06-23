@@ -11,31 +11,46 @@ import (
 	"github.com/ilyakaznacheev/tiny-wallet/pkg/currency"
 )
 
-// HTTPError is an error with HTTP status and error description
-type HTTPError struct {
-	code int
-	text string
+// HTTPError is an error with an HTTP status code
+type HTTPError interface {
+	error
+	Code() int
 }
 
-// NewHTTPErrorf creates a new HTTP error based on HTTP code and formatted string
+// ErrHTTPStatus is an error with HTTP status and error description
+type ErrHTTPStatus struct {
+	code int
+	text string
+	err  error
+}
+
+// NewErrHTTPStatusf creates a new HTTP error based on HTTP code and formatted string
 // code: HTTP status code
+// err: underlying error to wrap in
 // format: string formatting pattern
 // a: formatting attributes
-func NewHTTPErrorf(code int, format string, a ...interface{}) *HTTPError {
-	return &HTTPError{
+func NewErrHTTPStatusf(code int, err error, format string, a ...interface{}) *ErrHTTPStatus {
+	return &ErrHTTPStatus{
 		code: code,
 		text: fmt.Sprintf(format, a...),
+		err:  err,
 	}
 }
 
 // Error returns an text description of the error
-func (e HTTPError) Error() string {
-	return fmt.Sprintf("%s: %s", http.StatusText(e.code), e.text)
+func (e ErrHTTPStatus) Error() string {
+	// return fmt.Sprintf("%s: %s", http.StatusText(e.code), e.text)
+	return e.text
 }
 
 // Code returns a HTTP status code of the error
-func (e HTTPError) Code() int {
+func (e ErrHTTPStatus) Code() int {
 	return e.code
+}
+
+// Unwrap returns wrapped error
+func (e ErrHTTPStatus) Unwrap() error {
+	return e.err
 }
 
 // Service is a set of CRUD operations that the backend can process
@@ -76,28 +91,28 @@ func (s *walletService) GetAllAccounts(ctx context.Context) ([]model.Account, er
 func (s *walletService) PostPayment(ctx context.Context, fromID, toID string, amount float64) error {
 	accFrom, err := s.db.GetAccount(fromID)
 	if err == sql.ErrNoRows {
-		return NewHTTPErrorf(http.StatusNotFound, "account %s not found: %v", fromID, err)
+		return NewErrHTTPStatusf(http.StatusNotFound, err, "account %s not found", fromID)
 	} else if err != nil {
-		return NewHTTPErrorf(http.StatusInternalServerError, "%v", err)
+		return NewErrHTTPStatusf(http.StatusInternalServerError, err, "unexpected error")
 	}
 
 	accTo, err := s.db.GetAccount(toID)
 	if err == sql.ErrNoRows {
-		return NewHTTPErrorf(http.StatusNotFound, "account %s not found: %v", toID, err)
+		return NewErrHTTPStatusf(http.StatusNotFound, err, "account %s not found", toID)
 	} else if err != nil {
-		return NewHTTPErrorf(http.StatusInternalServerError, "%v", err)
+		return NewErrHTTPStatusf(http.StatusInternalServerError, err, "unexpected error")
 	}
 
 	// check if the payer and the receiver have the same balance currency
 	if accFrom.Currency != accTo.Currency {
-		return NewHTTPErrorf(http.StatusBadRequest, "account %s and %s have different balance currencies, payment can't be processed", accFrom.ID, accTo.ID)
+		return NewErrHTTPStatusf(http.StatusBadRequest, nil, "account %s and %s have different balance currencies, payment can't be processed", accFrom.ID, accTo.ID)
 	}
 
 	intAmount := currency.ConvertToInternal(amount, accFrom.Currency)
 
 	// check if the payer has enough money on the balance
 	if accFrom.Balance < intAmount {
-		return NewHTTPErrorf(http.StatusBadRequest, "account %d has not enough money", accFrom.ID)
+		return NewErrHTTPStatusf(http.StatusBadRequest, nil, "account %s has not enough money", accFrom.ID)
 	}
 
 	payment := model.Payment{
@@ -106,5 +121,9 @@ func (s *walletService) PostPayment(ctx context.Context, fromID, toID string, am
 		Amount:    intAmount,
 	}
 
-	return s.db.CreatePayment(payment, accFrom.LastUpdate, accTo.LastUpdate)
+	err = s.db.CreatePayment(payment, accFrom.LastUpdate, accTo.LastUpdate)
+	if err != nil {
+		return NewErrHTTPStatusf(http.StatusBadRequest, err, "payment processing failed")
+	}
+	return nil
 }

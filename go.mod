@@ -7,5 +7,6 @@ require (
 	github.com/gorilla/mux v1.7.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.1.1
+	golang.org/x/xerrors v0.0.0-20190513163551-3ee3066db522
 	gopkg.in/yaml.v2 v2.2.2
 )

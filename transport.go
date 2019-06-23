@@ -10,6 +10,7 @@ import (
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	"golang.org/x/xerrors"
 )
 
 // MakeHTTPHandler mounts all of the service endpoints into an http.Handler
@@ -18,7 +19,7 @@ func MakeHTTPHandler(s Service, logger log.Logger) http.Handler {
 	r := mux.NewRouter()
 	e := MakeServerEndpoints(s)
 	options := []httptransport.ServerOption{
-		// httptransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
+		httptransport.ServerErrorLogger(logger),
 		httptransport.ServerErrorEncoder(encodeError),
 	}
 
@@ -85,9 +86,52 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	if err == nil {
 		panic("encodeError with nil error")
 	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusInternalServerError)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+
+	var code int
+
+	// process error
+	switch e := err.(type) {
+	case HTTPError:
+		code = e.Code()
+	default:
+		code = http.StatusInternalServerError
+	}
+	errResp := map[string]interface{}{
 		"error": err.Error(),
+	}
+
+	// get wrapped errors
+	errDescr := make([]string, 0)
+	e := err
+	for {
+		if e = xerrors.Unwrap(e); e == nil {
+			break
+		}
+		errDescr = append(errDescr, e.Error())
+	}
+
+	if len(errDescr) > 0 {
+		errResp["details"] = errDescr
+	}
+
+	// process response data
+	w.WriteHeader(code)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(w).Encode(&ErrorResponse{
+		Code:  code,
+		Error: ErrorResponseMessage{err.Error(), errDescr},
 	})
 }
+
+type (
+	// ErrorResponse is a JSON error response structure
+	ErrorResponse struct {
+		Code  int                  `json:"code"`
+		Error ErrorResponseMessage `json:"error"`
+	}
+	// ErrorResponseMessage is an error message and details
+	ErrorResponseMessage struct {
+		Text    string   `json:"text"`
+		Details []string `json:"details,omitempty"`
+	}
+)
