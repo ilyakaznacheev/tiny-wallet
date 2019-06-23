@@ -44,6 +44,13 @@ func MakeHTTPHandler(s Service, logger log.Logger) http.Handler {
 		options...,
 	))
 
+	r.Methods("POST").Path("/account").Handler(httptransport.NewServer(
+		e.PostAccount,
+		decodePostAccountRequest,
+		encodeResponse,
+		options...,
+	))
+
 	return r
 }
 
@@ -53,6 +60,14 @@ func decodeDummy(_ context.Context, r *http.Request) (request interface{}, err e
 
 func decodePostPaymentRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	var req PostPaymentRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
+func decodePostAccountRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	var req PostAccountRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
 	}

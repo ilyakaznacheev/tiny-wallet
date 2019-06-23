@@ -10,11 +10,14 @@ import (
 
 // Endpoints is a set of service API endpoints
 type Endpoints struct {
+	// GetAllPaymentsEndpoint returns all payments in the system
 	GetAllPaymentsEndpoint endpoint.Endpoint
-	// GetOnePaymentEndpoint  endpoint.Endpoint
+	// GetAllAccountsEndpoint returns all accounts in the system
 	GetAllAccountsEndpoint endpoint.Endpoint
-	// GetOneAccountEndpoint  endpoint.Endpoint
+	// PostPayment processes a new payment
 	PostPayment endpoint.Endpoint
+	// PostAccount creates a new account
+	PostAccount endpoint.Endpoint
 }
 
 // MakeServerEndpoints creates server handlers for each endpoint
@@ -23,6 +26,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 		GetAllPaymentsEndpoint: MakeGetAllPaymentsEndpoint(s),
 		GetAllAccountsEndpoint: MakeGetAllAccountsEndpoint(s),
 		PostPayment:            MakePostPaymentEndpoint(s),
+		PostAccount:            MakePostAccountEndpoint(s),
 	}
 }
 
@@ -81,6 +85,15 @@ func MakePostPaymentEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
+// MakePostAccountEndpoint creates a PostAccount endpoint handler
+func MakePostAccountEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(PostAccountRequest)
+		err = s.PostAccount(ctx, req.ID, req.Balance, req.Currency)
+		return nil, err
+	}
+}
+
 // API data structures
 type (
 	// PostPaymentRequest is a request structure for the PostPayment endpoint
@@ -88,6 +101,12 @@ type (
 		AccountFromID string  `json:"from-account"`
 		AccountToID   string  `json:"to-account"`
 		Amount        float64 `json:"amount"`
+	}
+
+	PostAccountRequest struct {
+		ID       string  `json:"id"`
+		Balance  float64 `json:"amount"`
+		Currency string  `json:"currency"`
 	}
 
 	// GetAllPaymentsResponse  is a request structure for the GetAllPayments endpoint

@@ -161,7 +161,7 @@ func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastCh
 
 	// create a new payment
 	_, err = tx.Exec(`
-		INSERT INTO payments(account_from_id, account_to_id, amount, trx_time)
+		INSERT INTO payments (account_from_id, account_to_id, amount, trx_time)
 			VALUES($1, $2, $3, $4)`,
 		p.AccFromID, p.AccToID, p.Amount, now)
 	if err != nil {
@@ -170,4 +170,14 @@ func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastCh
 
 	// commit changes
 	return tx.Commit()
+}
+
+// CreateAccount creates a new account
+func (pg *PostgresClient) CreateAccount(a model.Account) error {
+	now := time.Now()
+	_, err := pg.db.Exec(`
+		INSERT INTO accounts (id, last_update, balance, currency, balance_date)
+			VALUES($1, $2, $3, $4, $5)`,
+		a.ID, now, a.Balance, a.Currency, now)
+	return err
 }

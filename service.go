@@ -58,6 +58,7 @@ type Service interface {
 	GetAllPayments(ctx context.Context) ([]model.Payment, error)
 	GetAllAccounts(ctx context.Context) ([]model.Account, error)
 	PostPayment(ctx context.Context, from, to string, amount float64) error
+	PostAccount(ctx context.Context, id string, balance float64, curr string) error
 }
 
 // Database is a common interface for a database layer
@@ -66,6 +67,7 @@ type Database interface {
 	GetAllPayments() ([]model.Payment, error)
 	GetAccount(accountID string) (*model.Account, error)
 	CreatePayment(p model.Payment, lastChangedFrom, lastChangedTo *time.Time) error
+	CreateAccount(a model.Account) error
 }
 
 type walletService struct {
@@ -105,7 +107,7 @@ func (s *walletService) PostPayment(ctx context.Context, fromID, toID string, am
 
 	// check if the payer and the receiver have the same balance currency
 	if accFrom.Currency != accTo.Currency {
-		return NewErrHTTPStatusf(http.StatusBadRequest, nil, "account %s and %s have different balance currencies, payment can't be processed", accFrom.ID, accTo.ID)
+		return NewErrHTTPStatusf(http.StatusBadRequest, nil, "accounts %s and %s have different balance currencies, payment can't be processed", accFrom.ID, accTo.ID)
 	}
 
 	intAmount := currency.ConvertToInternal(amount, accFrom.Currency)
@@ -123,7 +125,29 @@ func (s *walletService) PostPayment(ctx context.Context, fromID, toID string, am
 
 	err = s.db.CreatePayment(payment, accFrom.LastUpdate, accTo.LastUpdate)
 	if err != nil {
-		return NewErrHTTPStatusf(http.StatusBadRequest, err, "payment processing failed")
+		return NewErrHTTPStatusf(http.StatusInternalServerError, err, "payment processing failed")
+	}
+	return nil
+}
+
+func (s *walletService) PostAccount(ctx context.Context, id string, balance float64, curr string) error {
+	currKey, err := currency.AtoCurrency(curr)
+	if err != nil {
+		return NewErrHTTPStatusf(http.StatusBadRequest, err, "can't process account creation with currency %s", curr)
+	}
+
+	if balance < 0 {
+		return NewErrHTTPStatusf(http.StatusBadRequest, err, "can't process account creation with negative balance %f", balance)
+	}
+	a := model.Account{
+		ID:       id,
+		Balance:  currency.ConvertToInternal(balance, *currKey),
+		Currency: *currKey,
+	}
+
+	err = s.db.CreateAccount(a)
+	if err != nil {
+		return NewErrHTTPStatusf(http.StatusInternalServerError, err, "account creation failed")
 	}
 	return nil
 }

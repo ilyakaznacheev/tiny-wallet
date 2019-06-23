@@ -47,3 +47,29 @@ func TestConvertToExternal(t *testing.T) {
 		})
 	}
 }
+
+func TestAtoCurrency(t *testing.T) {
+	tests := []struct {
+		name    string
+		a       string
+		want    Currency
+		wantErr bool
+	}{
+		{"USD", "USD", USD, false},
+		{"IQD", "IQD", IQD, false},
+		{"UYW", "UYW", UYW, false},
+		{"AAA", "AAA", "", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := AtoCurrency(tt.a)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("unexpected error state = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if err == nil && *got != tt.want {
+				t.Errorf("wrong value %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
