@@ -116,14 +116,14 @@ func MakePostAccountEndpoint(s Service) endpoint.Endpoint {
 type (
 	// PostPaymentRequest is a request structure for the PostPayment endpoint
 	PostPaymentRequest struct {
-		AccountFromID string  `json:"from-account"`
-		AccountToID   string  `json:"to-account"`
+		AccountFromID string  `json:"account-from"`
+		AccountToID   string  `json:"account-to"`
 		Amount        float64 `json:"amount"`
 	}
 
 	PostAccountRequest struct {
 		ID       string  `json:"id"`
-		Balance  float64 `json:"amount"`
+		Balance  float64 `json:"balance"`
 		Currency string  `json:"currency"`
 	}
 

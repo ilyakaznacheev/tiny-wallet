@@ -1,0 +1,187 @@
+swagger: "2.0"
+info: 
+  title: Tiny Wallet Service API
+  description: Public RESTful API of the payment service
+  version: 1.0.0
+host: localhost
+basePath: /
+schemes:
+  - http
+tags:
+- name: account
+  description: Payment subject accounts
+- name: payment
+  description: Payments between accounts
+
+paths:
+  /accounts:
+    get:
+      tags:
+        - account
+      summary: Get a list of accounts
+      description: Returns a full list of accounts on the server
+      produces:
+      - application/json
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: "#/definitions/GetAllPaymentsResponse"
+        404:
+          description: not found
+        500:
+          description: internal server error
+
+  /account:
+    post:
+      tags:
+        - account
+      summary: Creates a new account
+      description: Adds a new account with some balance if no account with the same id exists.
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: account
+        schema:
+          $ref: "#/definitions/PostAccountRequest"
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: "#/definitions/Account"
+        400:
+          description: bad request
+        409:
+          description: conflict
+        500:
+          description: internal server error
+
+  /payments:
+    get:
+      tags:
+        - payment
+      summary: Get a list of payments
+      description: Returns a full list of payments on the server sorted by operation time
+      produces:
+      - application/json
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: "#/definitions/GetAllAccountsResponse"
+        404:
+          description: not found
+        500:
+          description: internal server error
+
+  /payment:
+    post:
+      tags:
+        - payment
+      summary: Processes a new payment
+      description: Creates a new payment transaction from one account to another. Payment only available between accounts with the same currencies, the payer balance should also not be smaller then a payment amount  
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: account
+        schema:
+          $ref: "#/definitions/PostPaymentRequest"
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: "#/definitions/Payment"
+        400:
+          description: bad request
+        404:
+          description: not found
+        500:
+          description: internal server error
+        
+      
+
+definitions:
+  PostAccountRequest:
+    type: object
+    required:
+    - id
+    - balance
+    - currency
+    properties:
+      id:
+        type: string
+      balance:
+        type: number
+      currency:
+        type: string
+
+  PostPaymentRequest:
+    type: object
+    required:
+    - account-from
+    - account-to
+    - amount
+    properties:
+      account-from:
+        type: string
+      account-to:
+        type: string
+      amount:
+        type: number
+
+  GetAllPaymentsResponse:
+    type: object
+    required:
+    - payments
+    properties:
+      payments:
+        type: array
+        items:
+          $ref: "#/definitions/Payment"
+
+  GetAllAccountsResponse:
+    type: object
+    required:
+    - accounts
+    properties:
+      accounts:
+        type: array
+        items:
+          $ref: "#/definitions/Account"
+
+  Payment:
+    type: object
+    required:
+    - account-from
+    - account-to
+    - amount
+    - currency
+    properties:
+      account-from:
+        type: string
+      account-to:
+        type: string
+      time:
+        type: string
+        format: date-time
+      amount:
+        type: number
+      currency:
+        type: string
+      
+
+  Account:
+    type: object
+    required:
+    - id
+    - balance
+    - currency
+    properties:
+      id:
+        type: string
+      balance:
+        type: number
+      currency:
+        type: string

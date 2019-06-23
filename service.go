@@ -9,6 +9,7 @@ import (
 
 	"github.com/ilyakaznacheev/tiny-wallet/internal/model"
 	"github.com/ilyakaznacheev/tiny-wallet/pkg/currency"
+	"golang.org/x/xerrors"
 )
 
 // HTTPError is an error with an HTTP status code
@@ -81,26 +82,38 @@ func NewWalletService(db Database) Service {
 
 // GetAllPayments returns a list of all payments in the system
 func (s *walletService) GetAllPayments(ctx context.Context) ([]model.Payment, error) {
-	return s.db.GetAllPayments()
+	payments, err := s.db.GetAllPayments()
+	if err == sql.ErrNoRows {
+		return nil, NewErrHTTPStatusf(http.StatusNotFound, nil, "no payment found")
+	} else if err != nil {
+		return nil, NewErrHTTPStatusf(http.StatusInternalServerError, err, "unexpected error")
+	}
+	return payments, nil
 }
 
 // GetAllAccounts returns a list of all accounts in the system
 func (s *walletService) GetAllAccounts(ctx context.Context) ([]model.Account, error) {
-	return s.db.GetAllAccounts()
+	accounts, err := s.db.GetAllAccounts()
+	if err == sql.ErrNoRows {
+		return nil, NewErrHTTPStatusf(http.StatusNotFound, nil, "no account found")
+	} else if err != nil {
+		return nil, NewErrHTTPStatusf(http.StatusInternalServerError, err, "unexpected error")
+	}
+	return accounts, nil
 }
 
 // PostPayment processes a financial transaction between two accounts
 func (s *walletService) PostPayment(ctx context.Context, fromID, toID string, amount float64) (*model.Payment, error) {
 	accFrom, err := s.db.GetAccount(fromID)
 	if err == sql.ErrNoRows {
-		return nil, NewErrHTTPStatusf(http.StatusNotFound, err, "account %s not found", fromID)
+		return nil, NewErrHTTPStatusf(http.StatusNotFound, nil, "account %s not found", fromID)
 	} else if err != nil {
 		return nil, NewErrHTTPStatusf(http.StatusInternalServerError, err, "unexpected error")
 	}
 
 	accTo, err := s.db.GetAccount(toID)
 	if err == sql.ErrNoRows {
-		return nil, NewErrHTTPStatusf(http.StatusNotFound, err, "account %s not found", toID)
+		return nil, NewErrHTTPStatusf(http.StatusNotFound, nil, "account %s not found", toID)
 	} else if err != nil {
 		return nil, NewErrHTTPStatusf(http.StatusInternalServerError, err, "unexpected error")
 	}
@@ -147,7 +160,9 @@ func (s *walletService) PostAccount(ctx context.Context, id string, balance floa
 	}
 
 	res, err := s.db.CreateAccount(a)
-	if err != nil {
+	if xerrors.Is(err, model.ErrRowExists) {
+		return nil, NewErrHTTPStatusf(http.StatusConflict, nil, "account %s already exists", a.ID)
+	} else if err != nil {
 		return nil, NewErrHTTPStatusf(http.StatusInternalServerError, err, "account creation failed")
 	}
 	return res, nil

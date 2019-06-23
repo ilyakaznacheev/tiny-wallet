@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"github.com/ilyakaznacheev/tiny-wallet/internal/model"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
+	"golang.org/x/xerrors"
 )
 
 // PostgresClient is a database communication manager
@@ -191,6 +192,14 @@ func (pg *PostgresClient) CreateAccount(a model.Account) (*model.Account, error)
 	)
 
 	if err := row.Scan(&rec.ID, &rec.LastUpdate, &rec.Currency, &rec.Balance, &dateDummy); err != nil {
+		var pqErr *pq.Error
+		if xerrors.As(err, &pqErr) {
+			// check Postgres errors class
+			switch pqErr.Code.Class() {
+			case "23": //integrity_constraint_violation
+				return nil, model.ErrRowExists
+			}
+		}
 		return nil, err
 	}
 
