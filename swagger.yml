@@ -4,7 +4,7 @@ info:
   description: Public RESTful API of the payment service
   version: 1.0.0
 host: localhost
-basePath: /
+basePath: /api
 schemes:
   - http
 tags:
@@ -29,8 +29,16 @@ paths:
             $ref: "#/definitions/GetAllPaymentsResponse"
         404:
           description: not found
+          schema:
+            $ref: "#/definitions/Error"
+          examples:
+            application/json: { "code": 404, "error": {"text": "not found"}}
         500:
           description: internal server error
+          schema:
+            $ref: "#/definitions/Error"
+          examples:
+            application/json: { "code": 500, "error": {"text": "internal server error"}}
 
   /account:
     post:
@@ -52,10 +60,22 @@ paths:
             $ref: "#/definitions/Account"
         400:
           description: bad request
+          schema:
+            $ref: "#/definitions/Error"
+          examples:
+            application/json: { "code": 400, "error": {"text": "bad request"}}
         409:
           description: conflict
+          schema:
+            $ref: "#/definitions/Error"
+          examples:
+            application/json: { "code": 409, "error": {"text": "conflict"}}
         500:
           description: internal server error
+          schema:
+            $ref: "#/definitions/Error"
+          examples:
+            application/json: { "code": 500, "error": {"text": "internal server error"}}
 
   /payments:
     get:
@@ -72,8 +92,16 @@ paths:
             $ref: "#/definitions/GetAllAccountsResponse"
         404:
           description: not found
+          schema:
+            $ref: "#/definitions/Error"
+          examples:
+            application/json: { "code": 404, "error": {"text": "not found"}}
         500:
           description: internal server error
+          schema:
+            $ref: "#/definitions/Error"
+          examples:
+            application/json: { "code": 500, "error": {"text": "internal server error"}}
 
   /payment:
     post:
@@ -95,13 +123,23 @@ paths:
             $ref: "#/definitions/Payment"
         400:
           description: bad request
+          schema:
+            $ref: "#/definitions/Error"
+          examples:
+            application/json: { "code": 400, "error": {"text": "bad request"}}
         404:
           description: not found
+          schema:
+            $ref: "#/definitions/Error"
+          examples:
+            application/json: { "code": 404, "error": {"text": "not found"}}
         500:
           description: internal server error
+          schema:
+            $ref: "#/definitions/Error"
+          examples:
+            application/json: { "code": 500, "error": {"text": "internal server error"}}
         
-      
-
 definitions:
   PostAccountRequest:
     type: object
@@ -185,3 +223,28 @@ definitions:
         type: number
       currency:
         type: string
+
+  Error:
+    type: object
+    required:
+    - code
+    - error
+    properties:
+      code: 
+        type: integer
+      error:
+        $ref: "#/definitions/ErrorMessage"
+
+
+  ErrorMessage:
+    type: object
+    required:
+    - text
+    properties:
+      text:
+        type: string
+      details:
+        type: array
+        items:
+          type: string
+
