@@ -37,7 +37,7 @@ func MakeGetAllPaymentsEndpoint(s Service) endpoint.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		// convert results into the responce format
+		// convert results into the response format
 		res := GetAllPaymentsResponse{
 			Payments: make([]Payment, 0, len(payments)),
 		}
@@ -61,7 +61,7 @@ func MakeGetAllAccountsEndpoint(s Service) endpoint.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		// convert results into the responce format
+		// convert results into the response format
 		res := GetAllAccountsResponse{
 			Accounts: make([]Account, 0, len(accounts)),
 		}
