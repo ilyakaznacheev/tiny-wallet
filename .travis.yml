@@ -1,0 +1,16 @@
+language: go
+
+go:
+  - tip
+  - "1.12.x"
+
+before_install:
+  - go get 
+  - go get github.com/mattn/goveralls
+
+script:
+  - $GOPATH/bin/goveralls -service=travis-ci
+  - go test -coverprofile=coverage.txt -covermode=atomic . ./pkg/currency/ ./internal/config
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
