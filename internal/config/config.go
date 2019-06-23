@@ -12,7 +12,7 @@ import (
 // This describes a configuration file structure
 // Each variable can be overridden with the environment variable
 type MainConfig struct {
-	Server   DatabaseConfig `yaml:"server"`
+	Server   ServerConfig   `yaml:"server"`
 	Database DatabaseConfig `yaml:"database"`
 }
 
@@ -20,9 +20,9 @@ type MainConfig struct {
 // Each variable can be overridden with the environment variable
 type ServerConfig struct {
 	// Host is an application server host
-	Host string `yaml:"host" envconfig:"SERVER_HOST" desc:"application server host"`
+	Host string `yaml:"host" envconfig:"HOST" desc:"application server host"`
 	// Host is an application server port
-	Port string `yaml:"port" envconfig:"SERVER_PORT" desc:"application server port"`
+	Port string `yaml:"port" envconfig:"PORT" desc:"application server port"`
 }
 
 // DatabaseConfig is a set of database configuration variables
@@ -32,19 +32,20 @@ type DatabaseConfig struct {
 	// Can be used on some cloud hostings like Heroku
 	DatabaseURL *string `envconfig:"DATABASE_URL" desc:"database connection option string"`
 	// Host of the database
-	Host string `yaml:"host" envconfig:"DB_HOST" desc:"database host"`
+	Host string `yaml:"host" envconfig:"HOST" desc:"database host"`
 	// Port of the database
-	Port string `yaml:"port" envconfig:"DB_PORT" desc:"database port"`
+	Port string `yaml:"port" envconfig:"PORT" desc:"database port"`
 	// Database name
-	Database string `yaml:"database" envconfig:"DB_DATABASE" desc:"database name"`
+	Database string `yaml:"database" envconfig:"NAME" desc:"database name"`
 	// Username is a name of a database user
-	Username string `yaml:"username" envconfig:"DB_USERNAME" desc:"database user name"`
+	Username string `yaml:"username" envconfig:"USERNAME" desc:"database user name"`
 	// Password of a database user
-	Password string `yaml:"password" envconfig:"DB_PASSWORD" desc:"database user password"`
+	Password string `yaml:"password" envconfig:"PASSWORD" desc:"database user password"`
+	SSL      string `yaml:"ssl" envconfig:"SSL" desc:"SSL status"`
 	// ConnectionPool number of database connections in the application pool
-	ConnectionPool int `yaml:"conn-pool" envconfig:"DB_CONN_POOL" desc:"database connection pool size"`
+	ConnectionPool int `yaml:"conn-pool" envconfig:"CONN_POOL" desc:"database connection pool size"`
 	// ConnectionWait wait until the database will up in the infinite loop
-	ConnectionWait bool `yaml:"conn-wait" envconfig:"DB_CONN_WAIT" desc:"wait until database up"`
+	ConnectionWait bool `yaml:"conn-wait" envconfig:"CONN_WAIT" desc:"wait until database up"`
 }
 
 // ReadConfig reads configuration from different sources

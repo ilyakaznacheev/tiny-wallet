@@ -47,8 +47,8 @@ func main() {
 		dbConfigURL = *conf.Database.DatabaseURL
 	} else {
 		dbConfigURL = fmt.Sprintf("host=%s port=%s user=%s "+
-			"password=%s dbname=%s",
-			conf.Database.Host, conf.Database.Port, conf.Database.Username, conf.Database.Password, conf.Database.Database)
+			"password=%s dbname=%s sslmode=%s",
+			conf.Database.Host, conf.Database.Port, conf.Database.Username, conf.Database.Password, conf.Database.Database, conf.Database.SSL)
 	}
 	db, err := database.NewPostgresClient(ctx, dbConfigURL, conf.Database.ConnectionWait)
 	if err != nil {
@@ -74,7 +74,7 @@ func parseArgs() args {
 	var a args
 
 	f := flag.NewFlagSet("Tiny Wallet", 1)
-	f.StringVar(&a.Config, "c", "config/config.yml", "path to configuration file")
+	f.StringVar(&a.Config, "c", "configs/config.yml", "path to configuration file")
 	fu := f.Usage
 	f.Usage = func() {
 		fu()

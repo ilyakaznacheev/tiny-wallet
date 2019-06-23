@@ -2,7 +2,6 @@
 server:
   host: "localhost"
   port: "8080"
-  wait: yes
 
 # Database (Postgres) settings
 database:
@@ -11,5 +10,6 @@ database:
   database: "wallet"
   username: "postgres"
   password: "postgres"
-  conn-wait: true
+  ssl: "disable"
+  conn-wait: yes
   conn-pool: 5

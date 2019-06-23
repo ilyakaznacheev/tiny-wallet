@@ -4,7 +4,7 @@ CREATE TABLE payments
     account_from_id character varying(30) NOT NULL,
     account_to_id character varying(30) NOT NULL,
     trx_time timestamp without time zone NOT NULL DEFAULT CURRENT_DATE,
-    amount bigint NOT NULL,
+    amount bigint NOT NULL
 );
 
 CREATE TABLE accounts
