@@ -130,9 +130,9 @@ This is a description of JSON types used in request and response body as a data 
 
 ```json
 {
-	"id": "bob123",
-	"balance": 100,
-	"currency": "USD"
+    "id": "bob123",
+    "balance": 100,
+    "currency": "USD"
 }
 ```
 
@@ -152,9 +152,9 @@ Payment creation request structure.
 
 ```json
 {
-	"account-from": "bob123",
-	"account-to": "alice456",
-	"amount": 12.25
+    "account-from": "bob123",
+    "account-to": "alice456",
+    "amount": 12.25
 }
 ```
 
@@ -170,16 +170,16 @@ A list of accounts in the system.
 
 ```json
 {
-	"accounts": [
-		{
-			"id": "bob123",
-			"balance": 107.02,
-			"currency": "USD"
-		},
-		{
-			"id": "alice456",
-			"balance": 92.98,
-			"currency": "USD"
+    "accounts": [
+        {
+            "id": "bob123",
+            "balance": 107.02,
+            "currency": "USD"
+        },
+        {
+            "id": "alice456",
+            "balance": 92.98,
+            "currency": "USD"
         }
     ]
 }
@@ -197,20 +197,20 @@ A list of payments in the system.
 
 ```json
 {
-	"payments": [
-		{
-			"account-from": "alice456",
-			"account-to": "bob123",
-			"time": "2019-06-23T00:37:47.998996Z",
-			"amount": 12.34,
-			"currency": "USD"
-		},
-		{
-			"account-from": "bob123",
-			"account-to": "alice456",
-			"time": "2019-06-23T01:41:46.944434Z",
-			"amount": 2.34,
-			"currency": "USD"
+    "payments": [
+        {
+            "account-from": "alice456",
+            "account-to": "bob123",
+            "time": "2019-06-23T00:37:47.998996Z",
+            "amount": 12.34,
+            "currency": "USD"
+        },
+        {
+            "account-from": "bob123",
+            "account-to": "alice456",
+            "time": "2019-06-23T01:41:46.944434Z",
+            "amount": 2.34,
+            "currency": "USD"
         }
     ]
 }

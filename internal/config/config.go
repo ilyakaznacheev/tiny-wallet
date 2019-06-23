@@ -30,7 +30,7 @@ type ServerConfig struct {
 type DatabaseConfig struct {
 	// DatabaseURL is an optional parameter that will contain a full connection option string.
 	// Can be used on some cloud hostings like Heroku
-	DatabaseURL *string `envconfig:"DATABASE_URL" desc:"database connection option string"`
+	DatabaseURL *string `envconfig:"URL" desc:"database connection option string"`
 	// Host of the database
 	Host string `yaml:"host" envconfig:"HOST" desc:"database host"`
 	// Port of the database
