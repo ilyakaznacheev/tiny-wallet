@@ -127,7 +127,7 @@ func TestServiceGetAllPayments(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &walletService{
+			s := &WalletService{
 				db: tt.db,
 			}
 			got, err := s.GetAllPayments(context.Background())
@@ -214,7 +214,7 @@ func TestServiceGetAllAccounts(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &walletService{
+			s := &WalletService{
 				db: tt.db,
 			}
 			got, err := s.GetAllAccounts(context.Background())
@@ -563,7 +563,7 @@ func TestServicePostPayment(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &walletService{
+			s := &WalletService{
 				db: tt.db,
 			}
 			got, err := s.PostPayment(context.Background(), tt.args.fromID, tt.args.toID, tt.args.amount)
@@ -578,7 +578,7 @@ func TestServicePostPayment(t *testing.T) {
 	}
 }
 
-func Test_walletService_PostAccount(t *testing.T) {
+func Test_WalletService_PostAccount(t *testing.T) {
 	now := time.Now()
 	type args struct {
 		id      string
@@ -679,16 +679,16 @@ func Test_walletService_PostAccount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &walletService{
+			s := &WalletService{
 				db: tt.db,
 			}
 			got, err := s.PostAccount(context.Background(), tt.args.id, tt.args.balance, tt.args.curr)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("walletService.PostAccount() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("WalletService.PostAccount() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if err == nil && !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("walletService.PostAccount() = %v, want %v", got, tt.want)
+				t.Errorf("WalletService.PostAccount() = %v, want %v", got, tt.want)
 			}
 		})
 	}
