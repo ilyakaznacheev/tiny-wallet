@@ -4,12 +4,11 @@ go:
   - "1.12.x"
 
 before_install:
-  - go env
+  - export GO111MODULE="on"
   - go get 
   - go get github.com/mattn/goveralls
 
 script:
-  - go env
   - $GOPATH/bin/goveralls -service=travis-ci
   - go test -coverprofile=coverage.txt -covermode=atomic . ./pkg/currency/ ./internal/config
 
