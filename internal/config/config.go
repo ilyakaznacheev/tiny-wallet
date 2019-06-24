@@ -77,6 +77,7 @@ func ReadConfig(path string) (*MainConfig, error) {
 	if os.Getenv("HEROKU") != "" {
 		cfg.Server.Port = os.Getenv("PORT")
 		fmt.Println("PORT: " + os.Getenv("PORT"))
+		fmt.Println("SERVER_HOST: " + os.Getenv("SERVER_HOST"))
 	}
 
 	return &cfg, nil
