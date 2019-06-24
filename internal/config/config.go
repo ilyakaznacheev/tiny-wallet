@@ -1,4 +1,12 @@
-// Package config contains application configuration structures and data read logic
+// Package config contains application configuration structures and data read logic.
+//
+// The package organizes configuration read and some platform-specific postprocessing.
+//
+// Main method is `ReadConfig(filepath)`. In general, it works the following way:
+// 1. The method reads a file by the path `filepath` and tries to parse it as a YAML file into the structure `MainConfig`;
+// 2. After that the method tries to load environment variables and overrides values from the YAML file for non-empty environment variables;
+// 3. The package processes a platform-specific configuration actions, namely:
+// 	- Heroku: if the environment variable `HEROKU` is set, the method overrides `MainConfig.Server.Port` value from `PORT` environment variable
 package config
 
 import (
@@ -11,6 +19,7 @@ import (
 // MainConfig is a structure of the application configuration
 // This describes a configuration file structure
 // Each variable can be overridden with the environment variable
+// To see the whole list of environment variables run application help (`wallet -h`)
 type MainConfig struct {
 	Server   ServerConfig   `yaml:"server"`
 	Database DatabaseConfig `yaml:"database"`
@@ -18,6 +27,7 @@ type MainConfig struct {
 
 // ServerConfig is a set of application server configuration variables
 // Each variable can be overridden with the environment variable
+// The name of the environment variable will be `SERVER_` + name from `envconfig` tag
 type ServerConfig struct {
 	// Host is an application server host
 	Host string `yaml:"host" envconfig:"HOST" desc:"application server host"`
@@ -27,6 +37,7 @@ type ServerConfig struct {
 
 // DatabaseConfig is a set of database configuration variables
 // Each variable can be overridden with the environment variable
+// The name of the environment variable will be `DATABASE_` + name from `envconfig` tag
 type DatabaseConfig struct {
 	// DatabaseURL is an optional parameter that will contain a full connection option string.
 	// Can be used on some cloud hostings like Heroku
@@ -51,6 +62,7 @@ type DatabaseConfig struct {
 // ReadConfig reads configuration from different sources
 // 1. reads a configuration file and returns it's content in a structured manner
 // 2. overriddes configuration with environment variables
+// 3. does some platform-specific actions
 func ReadConfig(path string) (*MainConfig, error) {
 	f, err := os.OpenFile(path, os.O_RDONLY|os.O_SYNC, 0)
 	if err != nil {

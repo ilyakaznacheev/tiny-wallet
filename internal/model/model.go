@@ -1,3 +1,4 @@
+// Package model contains common application models and types
 package model
 
 import (
@@ -6,7 +7,7 @@ import (
 	"github.com/ilyakaznacheev/tiny-wallet/pkg/currency"
 )
 
-// Account is a financial account
+// Account is a financial account entity representation
 type Account struct {
 	ID         string
 	LastUpdate *time.Time

@@ -45,6 +45,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 // MakeGetAllPaymentsEndpoint creates a GetAllPayments endpoint handler
 func MakeGetAllPaymentsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		// call service logic
 		payments, err := s.GetAllPayments(ctx)
 		if err != nil {
 			return nil, err
@@ -69,10 +70,12 @@ func MakeGetAllPaymentsEndpoint(s Service) endpoint.Endpoint {
 // MakeGetAllAccountsEndpoint creates a GetAllAccounts endpoint handler
 func MakeGetAllAccountsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		// call service logic
 		accounts, err := s.GetAllAccounts(ctx)
 		if err != nil {
 			return nil, err
 		}
+
 		// convert results into the response format
 		res := GetAllAccountsResponse{
 			Accounts: make([]Account, 0, len(accounts)),
@@ -92,10 +95,13 @@ func MakeGetAllAccountsEndpoint(s Service) endpoint.Endpoint {
 func MakePostPaymentEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(PostPaymentRequest)
+		// call service logic
 		res, err := s.PostPayment(ctx, req.AccountFromID, req.AccountToID, req.Amount)
 		if err != nil {
 			return nil, err
 		}
+
+		// convert results into the response format
 		payment := Payment{
 			AccFromID: res.AccFromID,
 			AccToID:   res.AccToID,
@@ -111,10 +117,13 @@ func MakePostPaymentEndpoint(s Service) endpoint.Endpoint {
 func MakePostAccountEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(PostAccountRequest)
+		// call service logic
 		res, err := s.PostAccount(ctx, req.ID, req.Balance, req.Currency)
 		if err != nil {
 			return nil, err
 		}
+
+		// convert results into the response format
 		account := Account{
 			ID:       res.ID,
 			Balance:  currency.ConvertToExternal(res.Balance, res.Currency),
@@ -127,6 +136,7 @@ func MakePostAccountEndpoint(s Service) endpoint.Endpoint {
 // MakeRedirectAPIEndpoint redirects to api documentation page
 func MakeRedirectAPIEndpoint(s Service) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (response interface{}, err error) {
+		// redirect to API documentation
 		redirectURL := urlAPIDoc
 		return &redirectURL, nil
 	}
@@ -135,6 +145,7 @@ func MakeRedirectAPIEndpoint(s Service) endpoint.Endpoint {
 // MakeRedirectMainEndpoint redirects to main project page or preconfigured redirect link
 func MakeRedirectMainEndpoint(s Service) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (response interface{}, err error) {
+		// redirect to main project page or specified page
 		redirectURL := urlAPIMain
 		if redirectEnv := os.Getenv("REDIRECT_MAIN"); redirectEnv != "" {
 			redirectURL = redirectEnv
@@ -144,6 +155,7 @@ func MakeRedirectMainEndpoint(s Service) endpoint.Endpoint {
 }
 
 // API data structures
+
 type (
 	// PostPaymentRequest is a request structure for the PostPayment endpoint
 	PostPaymentRequest struct {
@@ -152,6 +164,7 @@ type (
 		Amount        float64 `json:"amount"`
 	}
 
+	// PostAccountRequest is a request structure for the PostAccount endpoint
 	PostAccountRequest struct {
 		ID       string  `json:"id"`
 		Balance  float64 `json:"balance"`

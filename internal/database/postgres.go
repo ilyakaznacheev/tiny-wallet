@@ -1,3 +1,8 @@
+// Package database contains Database interface implementation for certain database.
+//
+// Here is a PostgreSQL implementation.
+//
+// To connect to the Postgres database call method `NewPostgresClient()` that will initiate database connection
 package database
 
 import (
@@ -13,10 +18,15 @@ import (
 
 // PostgresClient is a database communication manager
 type PostgresClient struct {
-	db *sql.DB
+	db  *sql.DB
+	ctx context.Context
 }
 
 // NewPostgresClient create a new database communication manager
+//
+// - ctx: context of the database client. Can be used to interrupt connection wait loop or long transactions;
+// - options: database connection options. Please provide a string of options in format `host=localhost port=5432 ...`. For more information about possible options see [Database Connection Control Functions](https://www.postgresql.org/docs/current/libpq-connect.html);
+// - wait: describes will the app wait until the database will up or fails after first unsuccessful ping. Useful for orchestration environments like K8s or Docker Compose or Swarm to wait when the database container of proxy will up.
 func NewPostgresClient(ctx context.Context, options string, wait bool) (*PostgresClient, error) {
 	db, err := sql.Open("postgres", options)
 	if err != nil {
@@ -48,10 +58,17 @@ func NewPostgresClient(ctx context.Context, options string, wait bool) (*Postgre
 		}
 	}
 
-	return &PostgresClient{db}, nil
+	return &PostgresClient{
+		db:  db,
+		ctx: ctx,
+	}, nil
 }
 
-// GetAllAccounts returns a list of existing accounts
+// GetAllAccounts returns a list of existing accounts.
+//
+// The view v_accounts calculates a sum of account balance and following payments affecting this account.
+//
+// To improve database performance you can periodically calculate a sum op payments related to each account and update its fields `balance` and `balance_date`. Thus, the payments older than balance_date will not be affected in aggregations anymore. All dates should be in UTC+0.
 func (pg *PostgresClient) GetAllAccounts() ([]model.Account, error) {
 	// fetch the data
 	rows, err := pg.db.Query(
@@ -77,7 +94,9 @@ func (pg *PostgresClient) GetAllAccounts() ([]model.Account, error) {
 	return res, nil
 }
 
-// GetAllPayments returns a list of existing payments
+// GetAllPayments returns a list of existing payments in historical order
+//
+// Since the payment doesn't contain currency code, it will be received from the corresponding payer account
 func (pg *PostgresClient) GetAllPayments() ([]model.Payment, error) {
 	// fetch the data
 	rows, err := pg.db.Query(
@@ -106,7 +125,11 @@ func (pg *PostgresClient) GetAllPayments() ([]model.Payment, error) {
 	return res, nil
 }
 
-// GetAccount returns an existing account
+// GetAccount returns an existing account.
+//
+// The view v_accounts calculates a sum of account balance and following payments affecting this account.
+//
+// To improve database performance you can periodically calculate a sum op payments related to each account and update its fields `balance` and `balance_date`. Thus, the payments older than balance_date will not be affected in aggregations anymore. All dates should be in UTC+0.
 func (pg *PostgresClient) GetAccount(accountID string) (*model.Account, error) {
 	// fetch the data
 	row := pg.db.QueryRow(`
@@ -130,7 +153,7 @@ func (pg *PostgresClient) GetAccount(accountID string) (*model.Account, error) {
 func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastChangedTo *time.Time) (*model.Payment, error) {
 	now := time.Now()
 	// get pg transaction
-	tx, err := pg.db.BeginTx(context.Background(), &sql.TxOptions{
+	tx, err := pg.db.BeginTx(pg.ctx, &sql.TxOptions{
 		Isolation: sql.LevelSerializable,
 		ReadOnly:  false,
 	})
@@ -178,7 +201,9 @@ func (pg *PostgresClient) CreatePayment(p model.Payment, lastChangedFrom, lastCh
 	return &rec, tx.Commit()
 }
 
-// CreateAccount creates a new account
+// CreateAccount creates a new account.
+//
+// If the account already exists, the method will return `model.ErrRowExists` error
 func (pg *PostgresClient) CreateAccount(a model.Account) (*model.Account, error) {
 	now := time.Now()
 	row := pg.db.QueryRow(`

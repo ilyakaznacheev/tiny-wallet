@@ -12,12 +12,15 @@ func ConvertToInternal(m float64, c Currency) int {
 }
 
 // ConvertToExternal converts internal integer amount in the lowest unit of the currency  to external floating point format
+//
 // E.g. USD (2): 1525 -> 15.25
 func ConvertToExternal(m int, c Currency) float64 {
 	return float64(m) / math.Pow10(c.Decimals())
 }
 
-// AtoCurrency converts string to ISO 4216 currency
+// AtoCurrency converts string to ISO 4216 currency.
+//
+// If there is no such currency code, the method will return an error
 func AtoCurrency(a string) (*Currency, error) {
 	c := Currency(a)
 	if _, ok := currencyProperties[c]; ok {
