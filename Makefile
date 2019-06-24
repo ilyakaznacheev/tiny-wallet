@@ -22,7 +22,7 @@ test:
 	@echo ">  Testing done"
 
 test-coverage:
-	@.deployments/ci/test.sh
+	@./deployments/ci/test.sh
 
 
 ## run: Run the application
