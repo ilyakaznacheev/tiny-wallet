@@ -23,28 +23,28 @@ func MakeHTTPHandler(s Service, logger log.Logger) http.Handler {
 		httptransport.ServerErrorEncoder(encodeError),
 	}
 
-	r.Methods("GET").Path("/payments").Handler(httptransport.NewServer(
+	r.Methods("GET").Path("/api/payments").Handler(httptransport.NewServer(
 		e.GetAllPaymentsEndpoint,
 		decodeDummy,
 		encodeResponse,
 		options...,
 	))
 
-	r.Methods("GET").Path("/accounts").Handler(httptransport.NewServer(
+	r.Methods("GET").Path("/api/accounts").Handler(httptransport.NewServer(
 		e.GetAllAccountsEndpoint,
 		decodeDummy,
 		encodeResponse,
 		options...,
 	))
 
-	r.Methods("POST").Path("/payment").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/api/payment").Handler(httptransport.NewServer(
 		e.PostPayment,
 		decodePostPaymentRequest,
 		encodeResponse,
 		options...,
 	))
 
-	r.Methods("POST").Path("/account").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/api/account").Handler(httptransport.NewServer(
 		e.PostAccount,
 		decodePostAccountRequest,
 		encodeResponse,
