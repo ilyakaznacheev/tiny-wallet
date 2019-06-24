@@ -71,12 +71,14 @@ type Database interface {
 	CreateAccount(a model.Account) (*model.Account, error)
 }
 
-// WalletService is a busines logic implementation of a Tiny Wallet
+// WalletService is a business logic implementation of a Tiny Wallet.
+//
+// It is responsible to process HTTP requests and manipulate the data of accounts and payments between them.
 type WalletService struct {
 	db Database
 }
 
-// NewWalletService creates a new wallet service
+// NewWalletService creates a new wallet service with a connection to the database
 func NewWalletService(db Database) Service {
 	return &WalletService{db}
 }

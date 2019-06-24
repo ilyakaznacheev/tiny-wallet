@@ -33,17 +33,17 @@ type Endpoints struct {
 // MakeServerEndpoints creates server handlers for each endpoint
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		GetAllPaymentsEndpoint: MakeGetAllPaymentsEndpoint(s),
-		GetAllAccountsEndpoint: MakeGetAllAccountsEndpoint(s),
-		PostPayment:            MakePostPaymentEndpoint(s),
-		PostAccount:            MakePostAccountEndpoint(s),
-		RedirectAPI:            MakeRedirectAPIEndpoint(s),
-		RedirectMain:           MakeRedirectMainEndpoint(s),
+		GetAllPaymentsEndpoint: makeGetAllPaymentsEndpoint(s),
+		GetAllAccountsEndpoint: makeGetAllAccountsEndpoint(s),
+		PostPayment:            makePostPaymentEndpoint(s),
+		PostAccount:            makePostAccountEndpoint(s),
+		RedirectAPI:            makeRedirectAPIEndpoint(s),
+		RedirectMain:           makeRedirectMainEndpoint(s),
 	}
 }
 
-// MakeGetAllPaymentsEndpoint creates a GetAllPayments endpoint handler
-func MakeGetAllPaymentsEndpoint(s Service) endpoint.Endpoint {
+// makeGetAllPaymentsEndpoint creates a GetAllPayments endpoint handler
+func makeGetAllPaymentsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		// call service logic
 		payments, err := s.GetAllPayments(ctx)
@@ -67,8 +67,8 @@ func MakeGetAllPaymentsEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-// MakeGetAllAccountsEndpoint creates a GetAllAccounts endpoint handler
-func MakeGetAllAccountsEndpoint(s Service) endpoint.Endpoint {
+// makeGetAllAccountsEndpoint creates a GetAllAccounts endpoint handler
+func makeGetAllAccountsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		// call service logic
 		accounts, err := s.GetAllAccounts(ctx)
@@ -91,8 +91,8 @@ func MakeGetAllAccountsEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-// MakePostPaymentEndpoint creates a PostPayment endpoint handler
-func MakePostPaymentEndpoint(s Service) endpoint.Endpoint {
+// makePostPaymentEndpoint creates a PostPayment endpoint handler
+func makePostPaymentEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(PostPaymentRequest)
 		// call service logic
@@ -113,8 +113,8 @@ func MakePostPaymentEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-// MakePostAccountEndpoint creates a PostAccount endpoint handler
-func MakePostAccountEndpoint(s Service) endpoint.Endpoint {
+// makePostAccountEndpoint creates a PostAccount endpoint handler
+func makePostAccountEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(PostAccountRequest)
 		// call service logic
@@ -133,8 +133,8 @@ func MakePostAccountEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-// MakeRedirectAPIEndpoint redirects to api documentation page
-func MakeRedirectAPIEndpoint(s Service) endpoint.Endpoint {
+// makeRedirectAPIEndpoint redirects to api documentation page
+func makeRedirectAPIEndpoint(s Service) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (response interface{}, err error) {
 		// redirect to API documentation
 		redirectURL := urlAPIDoc
@@ -142,8 +142,8 @@ func MakeRedirectAPIEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-// MakeRedirectMainEndpoint redirects to main project page or preconfigured redirect link
-func MakeRedirectMainEndpoint(s Service) endpoint.Endpoint {
+// makeRedirectMainEndpoint redirects to main project page or preconfigured redirect link
+func makeRedirectMainEndpoint(s Service) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (response interface{}, err error) {
 		// redirect to main project page or specified page
 		redirectURL := urlAPIMain
@@ -157,14 +157,18 @@ func MakeRedirectMainEndpoint(s Service) endpoint.Endpoint {
 // API data structures
 
 type (
-	// PostPaymentRequest is a request structure for the PostPayment endpoint
+	// PostPaymentRequest is a request structure for the PostPayment endpoint.
+	//
+	// It is used to structure REST request data.
 	PostPaymentRequest struct {
 		AccountFromID string  `json:"account-from"`
 		AccountToID   string  `json:"account-to"`
 		Amount        float64 `json:"amount"`
 	}
 
-	// PostAccountRequest is a request structure for the PostAccount endpoint
+	// PostAccountRequest is a request structure for the PostAccount endpoint.
+	//
+	// It is used to structure REST request data.
 	PostAccountRequest struct {
 		ID       string  `json:"id"`
 		Balance  float64 `json:"balance"`
@@ -172,23 +176,31 @@ type (
 	}
 
 	// GetAllPaymentsResponse  is a request structure for the GetAllPayments endpoint
+	//
+	// It is used to structure REST response data.
 	GetAllPaymentsResponse struct {
 		Payments []Payment `json:"payments"`
 	}
 
-	// GetAllAccountsResponse is a request structure for the GetAllAccounts endpoint
+	// GetAllAccountsResponse is a request structure for the GetAllAccounts endpoint.
+	//
+	// It is used to structure REST response data.
 	GetAllAccountsResponse struct {
 		Accounts []Account `json:"accounts"`
 	}
 
-	// Account is a financial account
+	// Account is a financial account.
+	//
+	// It is used to structure REST response data.
 	Account struct {
 		ID       string            `json:"id"`
 		Balance  float64           `json:"balance"`
 		Currency currency.Currency `json:"currency"`
 	}
 
-	// Payment is a financial transaction between accounts
+	// Payment is a financial transaction between accounts.
+	//
+	// It is used to structure REST response data.
 	Payment struct {
 		AccFromID string            `json:"account-from"`
 		AccToID   string            `json:"account-to"`
