@@ -8,7 +8,7 @@ A simplistic and minimalistic distributed wallet microservice
 [![GoDoc](https://godoc.org/github.com/ilyakaznacheev/tiny-wallet?status.svg)](https://godoc.org/github.com/ilyakaznacheev/tiny-wallet)
 [![Build Status](https://travis-ci.org/ilyakaznacheev/tiny-wallet.svg?branch=master)](https://travis-ci.org/ilyakaznacheev/tiny-wallet)
 [![Heroku](https://heroku-badge.herokuapp.com/?app=tiny-wallet&root=api/accounts&style=flat&svg=1)](https://tiny-wallet.herokuapp.com/api)
-[![Coverage Status](https://codecov.io/github/ilyakaznacheev/tiny-wallet/coverage.svg?branch=master)](https://codecov.io/github/ilyakaznacheev/tiny-wallet/branch=master)
+[![Coverage Status](https://codecov.io/github/ilyakaznacheev/tiny-wallet/coverage.svg?branch=master)](https://codecov.io/gh/ilyakaznacheev/tiny-wallet)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 
