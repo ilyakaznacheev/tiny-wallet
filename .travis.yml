@@ -1,19 +1,16 @@
 language: go
 
 go:
-  - "1.12.6"
+  - "1.12"
 
 env:
   - GO111MODULE=on
 
 before_install:
   - go get 
-  - go get github.com/mattn/goveralls
 
 script:
-  # - go test -coverprofile=coverage.txt -covermode=atomic . ./pkg/currency/ ./internal/config
-  - ./test.sh
-  # - $GOPATH/bin/goveralls -service=travis-ci
+  - make test-coverage
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
