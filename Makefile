@@ -21,6 +21,9 @@ test:
 		./internal/config
 	@echo ">  Testing done"
 
+test-coverage:
+	@./deployments/ci/test.sh
+
 
 ## run: Run the application
 run:
@@ -36,4 +39,4 @@ help: Makefile
 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
 	@echo
 
-.PHONY: build test integration help
+.PHONY: build test test-coverage help
