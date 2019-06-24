@@ -21,6 +21,7 @@ Tiny Wallet is a service that allows you to note any payments between simple fin
 - [About Tiny Wallet](#about-tiny-wallet)
 - [Requirements](#requirements)
 - [Usage](#usage)
+    - [Download](#download)
     - [Run Local](#run-local)
     - [Docker Compose](#docker-compose)
     - [Deployment](#deployment)
@@ -31,9 +32,53 @@ Tiny Wallet is a service that allows you to note any payments between simple fin
 
 ## About Tiny Wallet
 
+Tiny Wallet helps you to serve simple payment between accounts. As a internal microservice (without direct access to outside) it hasn't authentication capabilities, but they can be easily implemented as a go-kit middleware.
+
+The service is thread-safe and lock-free scalable application, so it can run multiple replicas over any load balancer without concurrent problems.
+
+As a cloud-native application it can run on any cloud platform (if it doesn't support Go, you can just build it before deploy, as Go supports cross-compilation), but also Docker or K8s. 
+
 ## Requirements
 
+There is a list or application requirements for different deployment scenario:
+
+- local run:
+    - Go 1.12.x (should be also downward compatible with 1.11, but not tested). Not compatible with earlier versions of Go from 1.10 because of `mod` usage;
+    - Go mod should be enabled;
+    - PosgreSQL (no specific version, it has to support serializable transaction isolation level). You don't have to install the database on your PC, you can also use dockerized or cloud PostgreSQL;
+- Docker Compose:
+    - Docker;
+    - Docker Compose;
+- cloud deployment.
+    - Go 1.12.x on the platform;
+    - Cloud PostgreSQL;
+- cloud deployment with Docker:
+    - Docker support;
+    - Cloud PostgreSQL;
+
 ## Usage
+
+Here is a list of possible ways to run the service.
+
+To get a list of CLI flags and environment variables run from the project root directory:
+
+```bash
+go run cmd/tiny-wallet/wallet.go -h
+```
+
+### Download
+
+You can get the app with `go get`:
+
+```bash
+go get github.com/ilyakaznacheev/tiny-wallet
+```
+
+or clone the repo into any directory outside `$GOPATH`:
+
+```bash
+git clone https://github.com/ilyakaznacheev/tiny-wallet.git
+```
 
 ### Run Local
 
@@ -47,7 +92,31 @@ To set up the database itself, please apply `.sql` files from `migrations` direc
 
 *Starting the service*
 
+Go to the project root directory and run the app by executing the following command:
 
+```bash
+make run
+```
+
+or by means of `go` if your operating system doesn't support `make`:
+
+```bash
+go run cmd/tiny-wallet/wallet.go
+```
+
+*Build*
+
+You can also build an executable file to run it. Call
+
+```bash
+make build
+```
+
+or 
+
+```bash
+go build cmd/tiny-wallet/wallet.go
+```
 
 ### Docker Compose
 
@@ -65,7 +134,7 @@ You can try the service online at [tiny-wallet.herokuapp.com/api](https://tiny-w
 
 ## API documentation
 
-Service public API is documented in [plain text](/api/api.md) and [swagger](/api/swagger.yml).
+Service public API is documented in [plain text](/api/api.md) and [swagger](/api/swagger.yml). Try it in [Swagger Editor](https://editor.swagger.io/)!
 
 ## Testing
 
