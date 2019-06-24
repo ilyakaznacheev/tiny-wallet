@@ -22,7 +22,6 @@ func NewPostgresClient(ctx context.Context, options string, wait bool) (*Postgre
 	if err != nil {
 		return nil, err
 	}
-	log.Println(options)
 
 	// try to ping the database
 	err = db.Ping()
