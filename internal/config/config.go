@@ -72,5 +72,10 @@ func ReadConfig(path string) (*MainConfig, error) {
 		return nil, err
 	}
 
+	// Heroku workaround
+	if os.Getenv("HEROKU") != "" {
+		cfg.Server.Port = os.Getenv("PORT")
+	}
+
 	return &cfg, nil
 }
