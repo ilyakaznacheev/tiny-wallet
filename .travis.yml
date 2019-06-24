@@ -12,7 +12,6 @@ before_install:
 
 script:
   - go test -coverprofile=coverage.txt -covermode=atomic . ./pkg/currency/ ./internal/config
-  - $GOPATH/bin/goveralls -service=travis-ci
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
