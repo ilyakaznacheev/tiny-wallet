@@ -12,7 +12,7 @@ before_install:
 
 script:
   # - go test -coverprofile=coverage.txt -covermode=atomic . ./pkg/currency/ ./internal/config
-  - ./go.test.sh
+  - ./test.sh
   # - $GOPATH/bin/goveralls -service=travis-ci
 
 after_success:
