@@ -2,6 +2,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/kelseyhightower/envconfig"
@@ -75,6 +76,7 @@ func ReadConfig(path string) (*MainConfig, error) {
 	// Heroku workaround
 	if os.Getenv("HEROKU") != "" {
 		cfg.Server.Port = os.Getenv("PORT")
+		fmt.Println("PORT: " + os.Getenv("PORT"))
 	}
 
 	return &cfg, nil
