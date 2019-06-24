@@ -11,12 +11,12 @@
 
 	Overview
 
-	The project is based on [go-kit](https://github.com/go-kit/kit). Thus, the application consists of several main levels combining together with interfaces. There are several levels, implemented in this app:
+	The project is based on go-kit (https://github.com/go-kit/kit). Thus, the application consists of several main levels combining together with interfaces. There are several levels, implemented in this app:
 
-	- transport: HTTP routing and the way the app communicate with the outer world: [transport.go](https://github.com/ilyakaznacheev/tiny-wallet/blob/master/transport.go)
-	- endpoint: the implementation of each route handling that calls underlying business logic: [endpoints.go](https://github.com/ilyakaznacheev/tiny-wallet/blob/master/endpoints.go)
-	- service: main business logic implementation: [service.go](https://github.com/ilyakaznacheev/tiny-wallet/blob/master/service.go)
-	- database: communication with database and transaction control: [internal/database/postgres.go](https://github.com/ilyakaznacheev/tiny-wallet/blob/master/internal/database/postgres.go)
+	- transport: HTTP routing and the way the app communicate with the outer world: transport.go (https://github.com/ilyakaznacheev/tiny-wallet/blob/master/transport.go)
+	- endpoint: the implementation of each route handling that calls underlying business logic: endpoints.go (https://github.com/ilyakaznacheev/tiny-wallet/blob/master/endpoints.go)
+	- service: main business logic implementation: service.go (https://github.com/ilyakaznacheev/tiny-wallet/blob/master/service.go)
+	- database: communication with database and transaction control: internal/database/postgres.go (https://github.com/ilyakaznacheev/tiny-wallet/blob/master/internal/database/postgres.go)
 
 	Running the app
 

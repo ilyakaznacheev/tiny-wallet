@@ -109,7 +109,7 @@ func (s *WalletService) GetAllAccounts(ctx context.Context) ([]model.Account, er
 //
 // It is lock-free, so it gives a good performance in distributed systems and allows you to read the data very fast and write without concurrency issues.
 //
-// The method is based on [compare-and-swap](https://en.wikipedia.org/wiki/Compare-and-swap) pattern.
+// The method is based on compare-and-swap(https://en.wikipedia.org/wiki/Compare-and-swap) pattern.
 //
 // Thus, the method reads the current state of both payer and receiver accounts. That allows it doesn't hold the database transaction open while the app processes the business logic, which can take a long time. After that, if there is all business checks are good, the application creates a serialized database transaction, that tries to update account state and save the payment. If the account state was changed meanwhile (i.e. another payment had affected any of these accounts), the transaction will fail. The serialized transaction will not allow concurrent process to create a payments during this update without database lock. That gives a good performance and thread-safety.
 func (s *WalletService) PostPayment(ctx context.Context, fromID, toID string, amount float64) (*model.Payment, error) {

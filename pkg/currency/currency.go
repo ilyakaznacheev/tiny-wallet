@@ -4,7 +4,7 @@
 //
 // The package allows to process currency conversions from external (float) format into internal (integer) and vice versa.
 //
-// For more information about ISO 4217 currency codes see [www.iso.org](https://www.iso.org/iso-4217-currency-codes.html)
+// For more information about ISO 4217 currency codes see https://www.iso.org/iso-4217-currency-codes.html
 package currency
 
 import (

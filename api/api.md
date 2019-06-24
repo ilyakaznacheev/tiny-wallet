@@ -26,6 +26,8 @@ All communication with the service is organized by means of RESTful HTTP request
 
 Each HTTP endpoint receives data in JSON format (whereas needed) and returns the responses also in JSON formats .
 
+Also check a [swagger documentation](/api/swagger.yml).
+
 ## Endpoints
 
 Here is the list of endpoints with description of possible operations.
