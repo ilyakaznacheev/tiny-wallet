@@ -9,12 +9,12 @@ A simplistic and minimalistic distributed wallet microservice
 [![Build Status](https://travis-ci.org/ilyakaznacheev/tiny-wallet.svg?branch=master)](https://travis-ci.org/ilyakaznacheev/tiny-wallet)
 [![Heroku](https://heroku-badge.herokuapp.com/?app=tiny-wallet&root=api/accounts&style=flat&svg=1)](https://tiny-wallet.herokuapp.com/api)
 [![Coverage Status](https://coveralls.io/repos/github/ilyakaznacheev/tiny-wallet/badge.svg?branch=master)](https://coveralls.io/github/ilyakaznacheev/tiny-wallet?branch=master)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ilyakaznacheev/tiny-wallet/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 
 ## Overview
 
-Tiny Wallet is a service that allows you to note any payments between simple financial accounts.
+Tiny Wallet is a service that allows you to process any payments between simple financial accounts.
 
 ## Contents
 
@@ -29,6 +29,7 @@ Tiny Wallet is a service that allows you to note any payments between simple fin
     - [Online](#online)
 - [API documentation](#api-documentation)
 - [Testing](#testing)
+- [Contributing](#contributing)
 
 ## About Tiny Wallet
 
@@ -120,13 +121,31 @@ go build cmd/tiny-wallet/wallet.go
 
 ### Docker Compose
 
+You can run the whole app infrastructure in the Docker Compose. See [Requirements](#requirements) for this case.
+
+To run the app call from the project root directory:
+
+```bash
+docker-compose up
+```
+
+This will start the service and the database and bind the app to port `8080`.
+
+To stop the app run
+
+```bash
+docker-compose down
+```
+
 ### Deployment
 
 The service in containerized with Docker, so you can use the [deployments/docker/wallet/Dockerfile](/deployments/docker/wallet/Dockerfile) to deploy it to any service that supports Docker containers, e.g. GKE, AWS, Heroku, etc.
 
 #### Heroku
 
-This service is already configured to be deployed on Heroku. You only need to push the repo to you own Heroku app or deploy it other possible way.
+This service is already configured to be deployed on Heroku. You only need to push the repo to your own Heroku app or deploy it another possible way.
+
+> **Note:** while deploying on Heroku specify environment variable `HEROKU=X` in the Heroku Dashboard. This will allow the app to run some Heroku-specific start-up logic.
 
 ### Online
 
@@ -138,3 +157,18 @@ Service public API is documented in [plain text](/api/api.md) and [swagger](/api
 
 ## Testing
 
+The business logic of the app and internal libraries are covered with unit-tests. The generated code or simple technical code (like one-liner that call another function) are not covered with tests now.
+
+To run tests on your PC run
+
+```bash
+make test
+```
+
+## Contributing
+
+The application is open-sourced under the [MIT](/LICENSE) license.
+
+If you will find some error, want to add something or ask a question - feel free to [create an issue](https://github.com/ilyakaznacheev/tiny-wallet/issues) and/or make a [pull request](https://github.com/ilyakaznacheev/tiny-wallet/pulls).
+
+Any contribution is welcome.
