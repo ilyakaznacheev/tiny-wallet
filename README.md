@@ -45,3 +45,4 @@ Tiny Wallet is a service that allows you to note any payments between simple fin
 Service public API is documented in [plain text](/api/api.md) and [swagger](/api/swagger.yml).
 
 ## Testing
+
