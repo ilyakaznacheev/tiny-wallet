@@ -2,10 +2,16 @@ package wallet
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/ilyakaznacheev/tiny-wallet/pkg/currency"
+)
+
+const (
+	urlAPIDoc  = "https://github.com/ilyakaznacheev/tiny-wallet/blob/master/api/api.md"
+	urlAPIMain = "https://github.com/ilyakaznacheev/tiny-wallet"
 )
 
 // Endpoints is a set of service API endpoints
@@ -18,6 +24,10 @@ type Endpoints struct {
 	PostPayment endpoint.Endpoint
 	// PostAccount creates a new account
 	PostAccount endpoint.Endpoint
+	// RedirectMain redirects the user from the main page
+	RedirectMain endpoint.Endpoint
+	// RedirectAPI redirects the user from the API page
+	RedirectAPI endpoint.Endpoint
 }
 
 // MakeServerEndpoints creates server handlers for each endpoint
@@ -27,6 +37,8 @@ func MakeServerEndpoints(s Service) Endpoints {
 		GetAllAccountsEndpoint: MakeGetAllAccountsEndpoint(s),
 		PostPayment:            MakePostPaymentEndpoint(s),
 		PostAccount:            MakePostAccountEndpoint(s),
+		RedirectAPI:            MakeRedirectAPIEndpoint(s),
+		RedirectMain:           MakeRedirectMainEndpoint(s),
 	}
 }
 
@@ -109,6 +121,25 @@ func MakePostAccountEndpoint(s Service) endpoint.Endpoint {
 			Currency: res.Currency,
 		}
 		return &account, nil
+	}
+}
+
+// MakeRedirectAPIEndpoint redirects to api documentation page
+func MakeRedirectAPIEndpoint(s Service) endpoint.Endpoint {
+	return func(_ context.Context, request interface{}) (response interface{}, err error) {
+		redirectURL := urlAPIDoc
+		return &redirectURL, nil
+	}
+}
+
+// MakeRedirectMainEndpoint redirects to main project page or preconfigured redirect link
+func MakeRedirectMainEndpoint(s Service) endpoint.Endpoint {
+	return func(_ context.Context, request interface{}) (response interface{}, err error) {
+		redirectURL := urlAPIMain
+		if redirectEnv := os.Getenv("REDIRECT_MAIN"); redirectEnv != "" {
+			redirectURL = redirectEnv
+		}
+		return &redirectURL, nil
 	}
 }
 

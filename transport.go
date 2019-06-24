@@ -51,6 +51,20 @@ func MakeHTTPHandler(s Service, logger log.Logger) http.Handler {
 		options...,
 	))
 
+	r.Path("/api").Handler(httptransport.NewServer(
+		e.RedirectAPI,
+		decodeDummy,
+		encodeRedirect,
+		options...,
+	))
+
+	r.Path("/").Handler(httptransport.NewServer(
+		e.RedirectMain,
+		decodeDummy,
+		encodeRedirect,
+		options...,
+	))
+
 	return r
 }
 
@@ -130,12 +144,24 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	}
 
 	// process response data
-	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(&ErrorResponse{
 		Code:  code,
 		Error: ErrorResponseMessage{err.Error(), errDescr},
 	})
+}
+
+func encodeRedirect(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	if err, ok := response.(errorer); ok && err.error() != nil {
+		encodeError(ctx, err.error(), w)
+		return nil
+	}
+	if url, ok := response.(*string); ok {
+		w.Header().Set("Location", *url)
+		w.WriteHeader(http.StatusMovedPermanently)
+	}
+	return nil
 }
 
 type (
