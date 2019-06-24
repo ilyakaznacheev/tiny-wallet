@@ -44,7 +44,7 @@ As a cloud-native application it can run on any cloud platform (if it doesn't su
 There is a list or application requirements for different deployment scenario:
 
 - local run:
-    - Go 1.12.x (should be also downward compatible with 1.11, but not tested). Not compatible with earlier versions of Go from 1.10 because of `mod` usage;
+    - Go  1.11.x or greater. Not compatible with earlier versions of Go from 1.10 because of `mod` usage;
     - Go mod should be enabled;
     - PosgreSQL (no specific version, it has to support serializable transaction isolation level). You don't have to install the database on your PC, you can also use dockerized or cloud PostgreSQL;
 - Docker Compose:
