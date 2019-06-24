@@ -1,15 +1,15 @@
 language: go
 
 go:
-  - "1.12.x"
+  - "1.12.6"
 
+env:
+  - GO111MODULE=on
 before_install:
-  - export GO111MODULE="on"
   - go get 
   - go get github.com/mattn/goveralls
 
 script:
-  - export GO111MODULE="on"
   - $GOPATH/bin/goveralls -service=travis-ci
   - go test -coverprofile=coverage.txt -covermode=atomic . ./pkg/currency/ ./internal/config
 
