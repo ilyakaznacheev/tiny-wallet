@@ -8,13 +8,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"text/tabwriter"
 
 	"github.com/go-kit/kit/log"
+	"github.com/ilyakaznacheev/cleanenv"
 	wallet "github.com/ilyakaznacheev/tiny-wallet"
 	"github.com/ilyakaznacheev/tiny-wallet/internal/config"
 	"github.com/ilyakaznacheev/tiny-wallet/internal/database"
-	"github.com/kelseyhightower/envconfig"
 )
 
 type args struct {
@@ -35,8 +34,10 @@ func main() {
 
 	logger := log.NewLogfmtLogger(os.Stderr)
 
-	a := parseArgs()
-	conf, err := config.ReadConfig(a.Config)
+	var conf config.MainConfig
+
+	a := parseArgs(&conf)
+	err := cleanenv.ReadConfig(a.Config, &conf)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
@@ -70,24 +71,18 @@ func main() {
 	logger.Log("exit", <-errs)
 }
 
-func parseArgs() args {
+func parseArgs(conf interface{}) args {
 	var a args
 
 	f := flag.NewFlagSet("Tiny Wallet", 1)
 	f.StringVar(&a.Config, "c", "configs/config.yml", "path to configuration file")
+
 	fu := f.Usage
 	f.Usage = func() {
 		fu()
-
-		tabs := tabwriter.NewWriter(os.Stdout, 1, 0, 4, ' ', 0)
-		envconfig.Usagef("", &config.MainConfig{}, tabs, `
-This application is configured via the environment. 
-The following environment variables can be used:
-{{range .}}
-  {{usage_key .}} [{{usage_type .}}]
-	{{usage_description .}}
-{{end}}`)
-		tabs.Flush()
+		envHelp, _ := cleanenv.GetDescription(conf, nil)
+		fmt.Println()
+		fmt.Println(envHelp)
 	}
 
 	f.Parse(os.Args[1:])
